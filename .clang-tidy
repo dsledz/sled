@@ -1,0 +1,82 @@
+---
+#Checks: 'clang-diagnostic-*,clang-analyzer-*,modernize-*,-modernize-use-equals-delete,-clang-analyzer-deadcode.DeadStores,-clang-analyzer-optin.cplusplus.VirtualCall'
+#Checks: '*,-fuchsia-default-arguments,-cppcoreguidelines-pro-type-vararg,-cppcoreguidelines-owning-memory,-hicpp-special-member-functions,-cert-err58-cpp,-google-runtime-int,-cppcoreguidelines-pro-type-union-access,-google-build-using-namespace,-cppcoreguidelines-special-member-functions,-hicpp-vararg,-hicpp-signed-bitwise,-hicpp-no-assembler,-fuchsia-overloaded-operator,-llvm-header-guard,-hicpp-explicit-conversions,-cppcoreguidelines-pro-bounds-*,-google-runtime-references,-llvm-include-order,-cppcoreguidelines-pro-type-*,-readability-inconsistent-declaration-parameter-name,-hicpp-no-array-decay,-cppcoreguidelines-interfaces-global-init'
+#Checks: 'google-*,-google-runtime-references,-google-build-using-namespace,-google-default-arguments,-google-readability-function-size'
+#Checks: 'clang-diagnostic-*,clang-analyzer-*'
+#Checks: 'cppcoreguidelines-pro-*'
+#Checks: 'hicpp-*,-hicpp-special-member-functions,-hicpp-signed-bitwise,-hicpp-vararg,-hicpp-member-init'
+Checks: 'bugprone-*'
+WarningsAsErrors: ''
+HeaderFilterRegex: 'core|cpu|emu|machine|driver'
+AnalyzeTemporaryDtors: false
+FormatStyle:     none
+User:            dan
+CheckOptions:    
+  - key:             google-readability-braces-around-statements.ShortStatementLines
+    value:           '1'
+  - key:             google-readability-function-size.StatementThreshold
+    value:           '800'
+  - key:             google-readability-namespace-comments.ShortNamespaceLines
+    value:           '10'
+  - key:             google-readability-namespace-comments.SpacesBeforeComments
+    value:           '2'
+  - key:             modernize-loop-convert.MaxCopySize
+    value:           '16'
+  - key:             modernize-loop-convert.MinConfidence
+    value:           reasonable
+  - key:             modernize-loop-convert.NamingStyle
+    value:           CamelCase
+  - key:             modernize-make-shared.IgnoreMacros
+    value:           '1'
+  - key:             modernize-make-shared.IncludeStyle
+    value:           '0'
+  - key:             modernize-make-shared.MakeSmartPtrFunction
+    value:           'std::make_shared'
+  - key:             modernize-make-shared.MakeSmartPtrFunctionHeader
+    value:           memory
+  - key:             modernize-make-unique.IgnoreMacros
+    value:           '1'
+  - key:             modernize-make-unique.IncludeStyle
+    value:           '0'
+  - key:             modernize-make-unique.MakeSmartPtrFunction
+    value:           'std::make_unique'
+  - key:             modernize-make-unique.MakeSmartPtrFunctionHeader
+    value:           memory
+  - key:             modernize-pass-by-value.IncludeStyle
+    value:           llvm
+  - key:             modernize-pass-by-value.ValuesOnly
+    value:           '0'
+  - key:             modernize-raw-string-literal.ReplaceShorterLiterals
+    value:           '0'
+  - key:             modernize-replace-auto-ptr.IncludeStyle
+    value:           llvm
+  - key:             modernize-replace-random-shuffle.IncludeStyle
+    value:           llvm
+  - key:             modernize-use-auto.RemoveStars
+    value:           '0'
+  - key:             modernize-use-default-member-init.IgnoreMacros
+    value:           '1'
+  - key:             modernize-use-default-member-init.UseAssignment
+    value:           '0'
+  - key:             modernize-use-emplace.ContainersWithPushBack
+    value:           '::std::vector;::std::list;::std::deque'
+  - key:             modernize-use-emplace.SmartPointers
+    value:           '::std::shared_ptr;::std::unique_ptr;::std::auto_ptr;::std::weak_ptr'
+  - key:             modernize-use-emplace.TupleMakeFunctions
+    value:           '::std::make_pair;::std::make_tuple'
+  - key:             modernize-use-emplace.TupleTypes
+    value:           '::std::pair;::std::tuple'
+  - key:             modernize-use-equals-default.IgnoreMacros
+    value:           '1'
+  - key:             modernize-use-noexcept.ReplacementString
+    value:           ''
+  - key:             modernize-use-noexcept.UseNoexceptFalse
+    value:           '1'
+  - key:             modernize-use-nullptr.NullMacros
+    value:           'NULL'
+  - key:             modernize-use-transparent-functors.SafeMode
+    value:           '0'
+  - key:             modernize-use-using.IgnoreMacros
+    value:           '1'
+...
+

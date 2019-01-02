@@ -61,6 +61,8 @@ endfunction(add_unit_test)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -Wall -Werror -g -Wno-unused-private-field -Wuninitialized -O0")
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.2")
+
 set(REBUILD_3RDPARTY ON CACHE BOOL "")
 
 add_subdirectory(3rdparty)

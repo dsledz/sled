@@ -1,0 +1,142 @@
+/*
+ * Copyright (c) 2018, Dan Sledz
+ * All rights reserved.
+ * Licensed under BSD-2-Clause license.
+ */
+#pragma once
+
+#include "sled/platform.h"
+
+#include <ostream>
+#include <type_traits>
+
+namespace sled {
+
+template <typename T, typename I>
+static inline bool a_const enum_isset(I arg, T bit) {
+  I n = static_cast<typename std::underlying_type<T>::type>(bit);
+  return (arg & (1 << n));
+}
+
+template <typename T, typename R = uint8_t>
+static inline R a_const enum_val(T t) {
+  return static_cast<typename std::underlying_type<T>::type>(t);
+}
+
+template <typename T>
+class BitField {
+ public:
+  using field_type = typename std::underlying_type<T>::type;
+
+  BitField() = default;
+  BitField(std::initializer_list<T> l) {
+    for (auto b : l) {
+      m_value |= static_cast<field_type>(b);
+    }
+  }
+  explicit BitField(field_type value) : m_value(value) {}
+
+  bool empty() const { return m_value == 0; }
+
+  void zero() { m_value = 0; }
+
+  field_type &get() { return m_value; }
+
+  field_type get() const { return m_value; }
+
+  a_forceinline bool is_set(T t) const {
+    return (m_value & static_cast<field_type>(t)) != 0;
+  }
+
+  a_forceinline bool is_clear(T t) const { return !is_set(t); }
+
+  void clear(T t) { m_value &= ~static_cast<field_type>(t); }
+
+  void set(T t) { m_value |= static_cast<field_type>(t); }
+
+  void update(BitField to_set, BitField to_clear) {
+    m_value = (m_value & ~to_clear.m_value) | to_set.m_value;
+  }
+
+  BitField<T> &operator|=(const BitField<T> &rhs) {
+    m_value |= rhs.m_value;
+    return *this;
+  }
+
+  BitField<T> &operator|=(const T &rhs) {
+    m_value |= static_cast<field_type>(rhs);
+    return *this;
+  }
+
+  BitField<T> &operator~() {
+    m_value = ~m_value;
+    return *this;
+  }
+
+  friend bool operator==(const BitField &lhs, const BitField &rhs) {
+    return lhs.m_value == rhs.m_value;
+  }
+
+ private:
+  field_type m_value{};
+};
+
+template <typename T>
+inline BitField<T> operator|(const BitField<T> &lhs, T rhs) {
+  BitField<T> ret(lhs);
+  ret |= rhs;
+  return ret;
+}
+
+template <typename T, typename Tag>
+struct StrongEnum {
+ public:
+  StrongEnum() = default;
+
+  template <typename Ta>
+  explicit constexpr StrongEnum(Ta v) : v(static_cast<T>(v)) {}
+
+  T v{0};
+
+  explicit constexpr operator T() const noexcept { return v; }
+
+  a_forceinline constexpr explicit operator bool() const noexcept {
+    return v != 0;
+  }
+
+  a_forceinline constexpr bool operator>(StrongEnum const &rhs) const noexcept {
+    return v > rhs.v;
+  }
+  a_forceinline constexpr bool operator>=(StrongEnum const &rhs) const
+      noexcept {
+    return v >= rhs.v;
+  }
+  a_forceinline constexpr bool operator<(StrongEnum const &rhs) const noexcept {
+    return v < rhs.v;
+  }
+  a_forceinline constexpr bool operator<=(StrongEnum const &rhs) const
+      noexcept {
+    return v <= rhs.v;
+  }
+  a_forceinline constexpr bool operator==(StrongEnum const &rhs) const
+      noexcept {
+    return v == rhs.v;
+  }
+  a_forceinline constexpr bool operator!=(StrongEnum const &rhs) const
+      noexcept {
+    return v != rhs.v;
+  }
+
+  friend inline std::ostream &operator<<(std::ostream &os,
+                                         StrongEnum const &e) {
+    auto &names = Tag::names;
+    if (e.v >= names.size()) {
+      os << "Invalid<" << e.v << ">";
+    } else {
+      os << names[e.v];
+    }
+    return os;
+  }
+};
+
+}  // namespace sled
