@@ -7,6 +7,8 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_BINARY_DIR}/include)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+include(cotire)
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 set(CMAKE_CXX_STANDARD 17)
 set(TARGET_ARCH "x64" CACHE STRING "Target Architecture")
@@ -33,6 +35,7 @@ if (BUILD_UNIT_TESTS OR BUILD_TESTS)
     set(BUILD_GTEST ON)
 endif()
 option(BUILD_DOCS "Build docs" ON)
+option(BUILD_LUA "Build LUA" ON)
 
 #
 # Helper function to add unit test
@@ -66,6 +69,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.2")
 set(REBUILD_3RDPARTY ON CACHE BOOL "")
 
 add_subdirectory(3rdparty)
+include_directories(3rdparty)
 
 add_subdirectory(include)
 add_subdirectory(src)
