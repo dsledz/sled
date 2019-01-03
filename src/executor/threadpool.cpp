@@ -29,7 +29,7 @@ void TpExecutor::unadopt_thread(Task* task) {
 
 void TpExecutor::resume() {}
 
-void TpExecutor::resume_once() {
+void TpExecutor::resume_pending() {
   if (auto task_opt = next(); task_opt.has_value()) {
     auto* task = task_opt.value();
     task->run();

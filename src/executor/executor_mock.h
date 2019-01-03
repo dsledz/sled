@@ -40,7 +40,7 @@ struct MockExecutor : public sled::executor::Executor {
   sled::executor::Task *adopt_thread() final;
   void unadopt_thread(sled::executor::Task *task) final;
   void resume() final;
-  void resume_once() final;
+  void resume_pending() final;
   void run() final;
   void shutdown() final;
   void schedule(sled::executor::Task *task) final;

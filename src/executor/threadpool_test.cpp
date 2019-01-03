@@ -80,7 +80,7 @@ TEST_F(TpExecutorTest, task_queued_same_thread) {
     return true;
   });
   auto &f1 = task.queue_start();
-  exec_ctx.resume_once();
+  exec_ctx.resume_pending();
   EXPECT_EQ(true, f1.wait());
   EXPECT_EQ(1, count);
   exec_ctx.shutdown();

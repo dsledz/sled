@@ -47,10 +47,10 @@ TEST_F(MockedTaskTest, multiple_tasks) {
   auto &f2 = task2.queue_start();
   auto &f3 = task3.queue_start();
   auto &f4 = task4.queue_start();
-  exec_ctx.resume_once();
+  exec_ctx.resume_pending();
   EXPECT_TRUE(f1.valid());
   EXPECT_FALSE(f2.valid());
-  exec_ctx.resume_once();
+  exec_ctx.resume_pending();
   EXPECT_TRUE(f2.valid());
   EXPECT_FALSE(f3.valid());
   exec_ctx.resume();

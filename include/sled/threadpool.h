@@ -79,7 +79,7 @@ class TpExecutor final : public Executor {
   Task *adopt_thread();
   void unadopt_thread(Task *task);
   void resume();
-  void resume_once();
+  void resume_pending();
   void run();
   void shutdown();
   void schedule(sled::executor::Task *task);
@@ -117,10 +117,11 @@ class TpExecutor final : public Executor {
     void suspend() override {}
     void wake() override {}
     void schedule() override {}
+    void yield() override {
+      // XXX: Run any outstanding tasks.
+    }
 
    private:
-    void yield_internal() override {}
-
     TpExecutor *exec_ctx_;
   };
 

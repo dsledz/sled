@@ -3,6 +3,7 @@
  * All rights reserved.
  * Licensed under BSD-2-Clause license.
  */
+#pragma once
 
 #include "sled/channel.h"
 #include "sled/enum.h"
@@ -96,6 +97,11 @@ class Task {
   virtual void schedule() = 0;
 
   /**
+   * Yield allowing other tasks to run.
+   */
+  virtual void yield() = 0;
+
+  /**
    * Schedule the task on the specified channel.
    */
   // XXX: void schedule(TaskChannel *channel);
@@ -103,11 +109,6 @@ class Task {
   // XXX: friend std::ostream &operator<<(std::ostream &os, const Task &t);
 
  protected:
-  /**
-   * Yield a task.
-   */
-  virtual void yield_internal() = 0;
-
   /**
    * Debug logging.
    */
@@ -122,7 +123,7 @@ class Task {
  */
 template <typename result_t>
 class ResultTask : public Task {
- public:
+ protected:
   std::optional<result_t> result_;
 };
 
@@ -130,7 +131,7 @@ class ResultTask : public Task {
  * Task specialization that does not contain a result.
  */
 class VoidTask : public Task {
- public:
+ protected:
   std::optional<int> result_;
 };
 
@@ -164,7 +165,7 @@ class ExecTask : public task_type_t<Fn> {
   }
   void wake() final {}
   void suspend() final {}
-  void yield_internal() final {}
+  void yield() final {}
   void schedule() final {}
 
   auto execute() { return closure_(); }

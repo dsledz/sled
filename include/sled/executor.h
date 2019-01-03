@@ -81,11 +81,11 @@ class Executor {
   virtual void resume() = 0;
 
   /**
-   * Resume once.
+   * Resume execution to process any pending tasks.
    *
    * Resume execution of the executor on the current thread for one task.
    */
-  virtual void resume_once() = 0;
+  virtual void resume_pending() = 0;
 
   /**
    * Run a task.

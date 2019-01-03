@@ -18,7 +18,7 @@ namespace sled::executor {
 /**
  * Type-safe object channel.
  */
-template <class object_t, class executor_t>
+template <class object_t, class executor_t, int RING_SIZE = 16>
 class Channel {
  public:
   using lock_t = sled::sync::SpinLock;
@@ -35,9 +35,10 @@ class Channel {
     lock_guard_t lock(m_mtx);
     bool b = m_objects.push_back(obj);
     while (!b) {
+      auto *task = executor_t::cur_task();
       // Channel is full, sleep
       lock.unlock();
-      executor_t::yield();
+      task->yield();
       lock.lock();
       b = m_objects.push_back(obj);
     }
@@ -88,7 +89,7 @@ class Channel {
  private:
   lock_t m_mtx;
   typename executor_t::task *m_waiting{};
-  sled::ring<object_t, 16> m_objects;
+  sled::ring<object_t, RING_SIZE> m_objects;
 };
 
 /**

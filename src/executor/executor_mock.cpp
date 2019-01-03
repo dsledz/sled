@@ -39,7 +39,7 @@ void MockExecutor::resume() {
   }
 }
 
-void MockExecutor::resume_once() {
+void MockExecutor::resume_pending() {
   if (!runnable_.empty()) {
     auto* task = runnable_.front();
     runnable_.pop_front();

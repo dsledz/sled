@@ -15,6 +15,7 @@ else (WIN32)
 endif (WIN32)
 
 add_library(sled-exec
+    coexecutor.cpp
     coroutine.cpp
     task.cpp
     threadpool.cpp
@@ -26,6 +27,7 @@ target_link_libraries(sled-exec
 add_unit_test(
     NAME executor-check
     SRC channel_test.cpp
+        coexecutor_test.cpp
         coroutine_test.cpp
         executor_mock.cpp
         future_test.cpp
