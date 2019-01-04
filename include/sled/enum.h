@@ -31,62 +31,65 @@ class BitField {
   BitField() = default;
   BitField(std::initializer_list<T> l) {
     for (auto b : l) {
-      m_value |= static_cast<field_type>(b);
+      value_ |= static_cast<field_type>(b);
     }
   }
-  explicit BitField(field_type value) : m_value(value) {}
+  explicit BitField(field_type value) : value_(value) {}
 
-  bool empty() const { return m_value == 0; }
+  bool empty() const { return value_ == 0; }
 
-  void zero() { m_value = 0; }
+  void zero() { value_ = 0; }
 
-  field_type &get() { return m_value; }
+  field_type &get() { return value_; }
 
-  field_type get() const { return m_value; }
+  field_type get() const { return value_; }
 
   a_forceinline bool is_set(T t) const {
-    return (m_value & static_cast<field_type>(t)) != 0;
+    return (value_ & static_cast<field_type>(t)) != 0;
   }
 
   a_forceinline bool is_clear(T t) const { return !is_set(t); }
 
-  void clear(T t) { m_value &= ~static_cast<field_type>(t); }
+  void clear(T t) { value_ &= ~static_cast<field_type>(t); }
 
-  void set(T t) { m_value |= static_cast<field_type>(t); }
+  void set(T t) { value_ |= static_cast<field_type>(t); }
 
   void update(BitField to_set, BitField to_clear) {
-    m_value = (m_value & ~to_clear.m_value) | to_set.m_value;
+    value_ = (value_ & ~to_clear.value_) | to_set.value_;
   }
 
   BitField<T> &operator|=(const BitField<T> &rhs) {
-    m_value |= rhs.m_value;
+    value_ |= rhs.value_;
     return *this;
   }
 
   BitField<T> &operator|=(const T &rhs) {
-    m_value |= static_cast<field_type>(rhs);
+    value_ |= static_cast<field_type>(rhs);
     return *this;
   }
 
-  BitField<T> &operator~() {
-    m_value = ~m_value;
-    return *this;
+  BitField<T> operator~() { return ~value_; }
+
+  friend inline const BitField<T> operator|(const BitField<T> &lhs, T rhs) {
+    BitField<T> ret(lhs);
+    ret |= rhs;
+    return ret;
+  }
+
+  friend inline constexpr BitField<T> operator|(BitField<T> const &lhs,
+                                                BitField<T> const &rhs) {
+    BitField<T> ret(lhs);
+    ret |= rhs;
+    return ret;
   }
 
   friend bool operator==(const BitField &lhs, const BitField &rhs) {
-    return lhs.m_value == rhs.m_value;
+    return lhs.value_ == rhs.value_;
   }
 
  private:
-  field_type m_value{};
+  field_type value_{};
 };
-
-template <typename T>
-inline BitField<T> operator|(const BitField<T> &lhs, T rhs) {
-  BitField<T> ret(lhs);
-  ret |= rhs;
-  return ret;
-}
 
 template <typename T, typename Tag>
 struct StrongEnum {

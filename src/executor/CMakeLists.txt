@@ -26,7 +26,8 @@ target_link_libraries(sled-exec
 
 add_unit_test(
     NAME executor-check
-    SRC channel_test.cpp
+    SRC atomic_test.cpp
+        channel_test.cpp
         coexecutor_test.cpp
         coroutine_test.cpp
         executor_mock.cpp
