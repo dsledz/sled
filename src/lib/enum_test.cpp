@@ -41,6 +41,13 @@ TEST_F(EnumTest, named_enum) {
   EXPECT_EQ("Value0", ss.str());
 }
 
+TEST_F(EnumTest, string_to_enum) {
+  auto te = TestEnum::from_string("Value0");
+  EXPECT_EQ(te, TestEnum::Value0);
+
+  EXPECT_THROW(TestEnum::from_string("Invalid"), sled::ConversionError);
+}
+
 TEST_F(EnumTest, unknown_enum) {
   std::stringstream ss;
   TestEnum te{100};

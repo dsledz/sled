@@ -30,6 +30,8 @@ TEST_F(NumericTest, strong_int_tests) {
   sled::Integer n1{type{100}};
   EXPECT_EQ(100, n1.v);
   EXPECT_EQ(8, n1.w);
+
+  EXPECT_EQ("100", to_string(n1));
 }
 
 TEST_F(NumericTest, hex_tests) {
@@ -37,6 +39,8 @@ TEST_F(NumericTest, hex_tests) {
   sled::Hex n1{type{100}};
   EXPECT_EQ(100, n1.v);
   EXPECT_EQ(8, n1.w);
+
+  EXPECT_EQ("0x00000064", to_string(n1));
 }
 
 TEST_F(NumericTest, alt_hex_tests) {
@@ -44,4 +48,6 @@ TEST_F(NumericTest, alt_hex_tests) {
   sled::AltHex n1{type{100}};
   EXPECT_EQ(100, n1.v);
   EXPECT_EQ(8, n1.w);
+
+  EXPECT_EQ("$00000064", to_string(n1));
 }

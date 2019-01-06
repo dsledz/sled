@@ -73,6 +73,22 @@ class Integer {
         w(sizeof(typename std::underlying_type<T>) * 2) {}
   uint64_t v;
   int w;
+
+  friend inline std::ostream &operator<<(std::ostream &os, Integer const &obj) {
+    os << std::dec << obj.v;
+    return os;
+  }
+
+  static inline Integer from_string(std::string const &obj) {
+    // XXX: Pick the correct width.
+    return Integer(stoull(obj, nullptr, 0));
+  }
+
+  friend a_forceinline std::string to_string(Integer const &obj) {
+    std::stringstream os;
+    os << obj;
+    return os.str();
+  }
 };
 
 /**
@@ -117,6 +133,17 @@ class Hex {
        << obj.v << std::dec;
     return os;
   }
+
+  static inline Hex from_string(std::string const &obj) {
+    // XXX: Pick the correct width.
+    return Hex(stoull(obj, nullptr, 0));
+  }
+
+  friend a_forceinline std::string to_string(Hex const &obj) {
+    std::stringstream os;
+    os << obj;
+    return os.str();
+  }
 };
 
 /**
@@ -153,6 +180,17 @@ class AltHex {
     os << std::hex << std::uppercase << std::setfill('0') << std::right
        << std::setw(obj.w) << obj.v;
     return os;
+  }
+
+  static inline AltHex from_string(std::string const &obj) {
+    // XXX: Pick the correct width.
+    return AltHex(stoull(obj, nullptr, 0));
+  }
+
+  friend a_forceinline std::string to_string(AltHex const &obj) {
+    std::stringstream os;
+    os << obj;
+    return os.str();
   }
 };
 

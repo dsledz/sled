@@ -4,11 +4,12 @@
  * Licensed under BSD-2-Clause license.
  */
 
-#include <string>
+#include <algorithm>
 #include <iomanip>
 #include <istream>
 #include <map>
 #include <ostream>
+#include <string>
 
 namespace sled {
 

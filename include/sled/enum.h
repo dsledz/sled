@@ -5,7 +5,9 @@
  */
 #pragma once
 
+#include "sled/exception.h"
 #include "sled/platform.h"
+#include "sled/string.h"
 
 #include <ostream>
 #include <type_traits>
@@ -139,6 +141,23 @@ struct StrongEnum {
       os << names[e.v];
     }
     return os;
+  }
+
+  static inline StrongEnum from_string(std::string const &obj) {
+    // TODO(dan): rework this function so it can be constexpr
+    auto str = str_tolower(obj);
+    for (size_t i = 0; i < Tag::names.size(); i++) {
+      if (str == str_tolower(Tag::names[i])) {
+        return StrongEnum{i};
+      }
+    }
+    throw ConversionError(obj);
+  }
+
+  friend a_forceinline std::string to_string(StrongEnum const &obj) {
+    std::stringstream os;
+    os << obj;
+    return os.str();
   }
 };
 

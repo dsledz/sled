@@ -8,6 +8,8 @@
 #include "sled/enum.h"
 #include "sled/platform.h"
 
+#include <atomic>
+
 namespace sled {
 
 template <typename T>
