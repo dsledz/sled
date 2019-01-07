@@ -31,6 +31,15 @@ TEST_F(TimeTest, arithmetic) {
   EXPECT_EQ(100'100ll, t.v);
   t += t1;
   EXPECT_EQ(100'100'100ll, t.v);
+  EXPECT_EQ(100'100'000ll, (t0 + t1).v);
+  EXPECT_EQ(100ll, (t0 / 1000).v);
+}
+
+TEST_F(TimeTest, from) {
+  EXPECT_EQ(100ul, sled::time::from_nsec(100).v);
+  EXPECT_EQ(100'000ul, sled::time::from_usec(100).v);
+  EXPECT_EQ(100'000'000ul, sled::time::from_msec(100).v);
+  EXPECT_EQ(100'000'000'000ul, sled::time::from_sec(100).v);
 }
 
 TEST_F(TimeTest, formatter) {

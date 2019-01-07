@@ -44,7 +44,7 @@ static a_forceinline void sstreamfn(std::ostream & /*os*/) {}
 template <typename H, typename... T>
 void sstreamfn(std::ostream &os, const H &p, T const &... t) {
   os << p;
-  sstreamfn(os, t...);
+  sled::sstreamfn(os, t...);
 }
 
 } // namespace sled

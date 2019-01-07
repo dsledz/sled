@@ -183,23 +183,23 @@ class StrongInt {
   constexpr T get() const noexcept { return v; }
 
   a_forceinline constexpr Tag operator+(Tag const &rhs) const noexcept {
-    return Tag(v + rhs.v);
+    return Tag{v + rhs.v};
   }
 
   a_forceinline constexpr Tag operator-(Tag const &rhs) const noexcept {
-    return Tag(v - rhs.v);
+    return Tag{v - rhs.v};
   }
 
   a_forceinline constexpr Tag operator*(Tag const &rhs) const noexcept {
-    return Tag(v * rhs.v);
+    return Tag{v * rhs.v};
   }
 
   a_forceinline constexpr Tag operator/(Tag const &rhs) const noexcept {
-    return Tag(v / rhs.v);
+    return Tag{v / rhs.v};
   }
 
   a_forceinline constexpr Tag operator%(Tag const &rhs) const noexcept {
-    return Tag(v % rhs.v);
+    return Tag{v % rhs.v};
   }
 
   a_forceinline constexpr Tag operator+=(Tag const &rhs) noexcept {
