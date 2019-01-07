@@ -82,20 +82,20 @@ constexpr Facility const Facility::User1{5};
 constexpr Facility const Facility::User2{6};
 constexpr Facility const Facility::User3{7};
 
-struct tsc_t : StrongInteger<uint64_t, tsc_t> {
-  using StrongInteger<uint64_t, tsc_t>::StrongInteger;
+struct tsc_t : StrongInt<uint64_t, tsc_t> {
+  using StrongInt<uint64_t, tsc_t>::StrongInt;
 
   static constexpr tsc_t now() { return tsc_t{0}; }
 };
 
-struct thr_id_t : StrongInteger<uint64_t, thr_id_t> {
-  using StrongInteger<uint64_t, thr_id_t>::StrongInteger;
+struct thr_id_t : StrongInt<uint64_t, thr_id_t> {
+  using StrongInt<uint64_t, thr_id_t>::StrongInt;
 
   static thr_id_t self() { return thr_id_t{0}; }
 };
 
-struct task_id_t : StrongInteger<uint64_t, task_id_t> {
-  using StrongInteger<uint64_t, task_id_t>::StrongInteger;
+struct task_id_t : StrongInt<uint64_t, task_id_t> {
+  using StrongInt<uint64_t, task_id_t>::StrongInt;
 
   static task_id_t self() { return task_id_t{0}; }
 };

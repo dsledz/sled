@@ -23,10 +23,15 @@ TEST_F(NumericTest, nibble_size) {
   EXPECT_EQ(1, n1.w);
 }
 
-struct tag1 {};
+struct tag1 : public sled::StrongInt<uint32_t, tag1> {
+  using sled::StrongInt<uint32_t, tag1>::StrongInt;
+};
+
+template <>
+struct sled::__is_wrapped_integer_helper<tag1> : public std::true_type {};
 
 TEST_F(NumericTest, strong_int_tests) {
-  using type = sled::StrongInteger<uint32_t, tag1>;
+  using type = tag1;
   sled::Integer n1{type{100}};
   EXPECT_EQ(100, n1.v);
   EXPECT_EQ(8, n1.w);

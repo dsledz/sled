@@ -14,8 +14,9 @@
 
 namespace sled {
 
-struct crc32_tag {};
-using crc32c = StrongInteger<uint32_t, crc32_tag>;
+struct crc32c : public StrongInt<uint32_t, crc32c> {
+  using StrongInt<uint32_t, crc32c>::StrongInt;
+};
 
 /**
  * Compute the CRC32C value for the vector

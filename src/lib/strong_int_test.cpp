@@ -8,9 +8,9 @@
 
 #include "gtest/gtest.h"
 
-class StrongIntegerTest : public ::testing::Test {
+class StrongIntTest : public ::testing::Test {
  protected:
-  StrongIntegerTest() = default;
+  StrongIntTest() = default;
 
   void SetUp() override {}
   void TearDown() override {}
@@ -25,7 +25,7 @@ struct TestInt : public sled::StrongInt<uint32_t, TestInt> {
   }
 };
 
-TEST_F(StrongIntegerTest, inherited) {
+TEST_F(StrongIntTest, inherited) {
   TestInt ti1{100};
   TestInt ti2{10};
 
