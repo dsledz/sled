@@ -3,6 +3,7 @@
  * All rights reserved.
  * Licensed under BSD-2-Clause license.
  */
+#pragma once
 
 #include <algorithm>
 #include <iomanip>
@@ -37,12 +38,27 @@ static inline bool ends_with(const std::string &s, const std::string &e) {
   return (n == s_len - e_len);
 }
 
+template<typename T>
+static inline std::string as_string(const std::string &hint, const T &obj) {
+  std::stringstream ss;
+  ss << hint << "<" << obj << ">";
+  return ss.str();
+}
+
+// Recursive function to concat strings
+template <typename H>
+static a_forceinline std::string stringfn(const H &p) { return to_string(p); }
+template <typename H, typename... T>
+std::string stringfn(H const&p, T const &... t) {
+  return to_string(p) + stringfn(t...);
+}
+
 /**
  * Recursively concat types using the << operator.
  */
 static a_forceinline void sstreamfn(std::ostream & /*os*/) {}
 template <typename H, typename... T>
-void sstreamfn(std::ostream &os, const H &p, T const &... t) {
+void sstreamfn(std::ostream &os, H const &p, T const &... t) {
   os << p;
   sled::sstreamfn(os, t...);
 }
