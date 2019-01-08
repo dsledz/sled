@@ -15,5 +15,6 @@ add_unit_test(
         statistics_test.cpp
         strong_int_test.cpp
         time_test.cpp
+        union_test.cpp
     DEPS sled-lib
     )

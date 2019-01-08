@@ -30,7 +30,7 @@ using Coroutine = sled::executor::Coroutine;
 struct ThreadState {
   std::unique_ptr<Coroutine> ctx_storage;
   Coroutine *ctx{};
-  stack_ctx other_ctx{};
+  sled::stack_ctx other_ctx{};
   uint64_t data{};
 };
 

@@ -9,6 +9,7 @@
 #include <x86intrin.h>
 #include <cassert>
 #include <cstdint>
+#include <cstring>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -143,5 +144,21 @@ static inline std::string demangle(const std::type_info &ti) {
   return result;
 }
 #endif
+
+}  // namespace sled
+
+namespace sled {
+
+template <typename T, typename B,
+          class = typename std::enable_if_t<
+              std::__and_<std::true_type /*std::is_trivially_copyable<T> */,
+                          std::is_trivially_copyable<B>>::value>>
+T *safe_cast(B *b) {
+  std::aligned_storage<sizeof(T), alignof(T)> s;
+  std::memcpy(&s, b, sizeof(T));
+  auto f = new (b) T;
+  std::memcpy(f, &s, sizeof(T));
+  return f;
+}
 
 }  // namespace sled
