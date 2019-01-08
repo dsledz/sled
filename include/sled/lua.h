@@ -381,6 +381,19 @@ class LuaClosure : public LuaObject {
   LuaCall m_call;
 };
 
+struct LuaFunction : public LuaObject {
+  LuaFunction(LuaSupport &lua, const std::string &name, lua_call_t *call)
+      : m_lua(lua), m_name(name) {
+    lua.add_callback(name, call);
+  }
+  ~LuaFunction() override { m_lua.remove(m_name); }
+
+  LuaFunction(const LuaFunction &) = delete;
+
+  LuaSupport &m_lua;
+  const std::string m_name;
+};
+
 class LuaLibrary : public LuaObject {
  public:
   explicit LuaLibrary(const std::string &name)

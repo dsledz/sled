@@ -40,6 +40,8 @@
 static_assert(alignof(std::max_align_t) == 16, "Unsupported alignment");
 #endif
 
+namespace sled {
+
 #ifdef WIN32
 struct stack_ctx {
   uint64_t rbx;
@@ -64,6 +66,8 @@ struct stack_ctx {
 };
 #endif
 
+}  // namespace sled
+
 #ifdef WIN32
 // Windows building with support for throwing across extern C
 #define linkas_real(x) __asm(#x)
@@ -81,8 +85,8 @@ extern "C" {
  * Switch the thread context, storing the current state in @a running_ctx and
  * resuming from @a new_ctx.
  */
-extern void SwitchContext(stack_ctx *running_ctx, stack_ctx *new_ctx)
-    linkas(SwitchContext);
+extern void SwitchContext(sled::stack_ctx *running_ctx,
+                          sled::stack_ctx *new_ctx) linkas(SwitchContext);
 
 /**
  * Initial Switch Context.
@@ -90,8 +94,8 @@ extern void SwitchContext(stack_ctx *running_ctx, stack_ctx *new_ctx)
  * Switch the thread context, storing the current state in @a running_ctx and
  * resuming from @a new_ctx at @initial_ip
  */
-extern void InitialSwitchContext(stack_ctx *running_ctx, stack_ctx *new_ctx,
-                                 uintptr_t initial_ip)
+extern void InitialSwitchContext(sled::stack_ctx *running_ctx,
+                                 sled::stack_ctx *new_ctx, uintptr_t initial_ip)
     linkas(InitialSwitchContext);
 
 /**
@@ -101,9 +105,9 @@ extern void InitialSwitchContext(stack_ctx *running_ctx, stack_ctx *new_ctx,
  * resuming from @a new_ctx, but immediately executing @a isr_fn as
  * `void (*isr_fn)(isr_data);`
  */
-extern void SwitchContextIrq(stack_ctx *running_ctx, stack_ctx *new_ctx,
-                             uintptr_t isr_fn, uintptr_t isr_data)
-    linkas(SwitchContextIrq);
+extern void SwitchContextIrq(sled::stack_ctx *running_ctx,
+                             sled::stack_ctx *new_ctx, uintptr_t isr_fn,
+                             uintptr_t isr_data) linkas(SwitchContextIrq);
 
 #ifdef WIN32
 };
@@ -115,6 +119,8 @@ extern void SwitchContextIrq(stack_ctx *running_ctx, stack_ctx *new_ctx,
 #else
 #define debug_assert(...)
 #endif
+
+namespace sled {
 
 /**
  * Demagle support
@@ -137,3 +143,5 @@ static inline std::string demangle(const std::type_info &ti) {
   return result;
 }
 #endif
+
+}  // namespace sled

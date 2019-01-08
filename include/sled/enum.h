@@ -26,6 +26,34 @@ static inline R a_const enum_val(T t) {
 }
 
 template <typename T>
+class Enum {
+ public:
+  class Iterator {
+   public:
+    explicit Iterator(int value) : m_value(value) {}
+
+    T operator*() const { return T{m_value}; }
+
+    void operator++() { ++m_value; }
+
+    bool operator!=(Iterator rhs) { return m_value != rhs.m_value; }
+
+   private:
+    int m_value;
+  };
+};
+
+template <typename T>
+typename Enum<T>::Iterator begin(Enum<T> /*unused*/) {
+  return typename Enum<T>::Iterator(enum_val(T::First));
+}
+
+template <typename T>
+typename Enum<T>::Iterator end(Enum<T> /*unused*/) {
+  return typename Enum<T>::Iterator(enum_val(T::Last) + 1);
+}
+
+template <typename T>
 class BitField {
  public:
   using field_type = typename std::underlying_type<T>::type;
