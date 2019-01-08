@@ -20,8 +20,9 @@ struct TestEnum final : sled::StrongEnum<uint32_t, TestEnum> {
   static TestEnum const Value2;
   static TestEnum const Value3;
 
-  static constexpr std::array<const char *, 4> names{"Value0", "Value1",
-                                                     "Value2", "Value3"};
+  static constexpr std::array<name_type, 4> names{
+      std::make_pair(0, "Value0"), std::make_pair(1, "Value1"),
+      std::make_pair(2, "Value2"), std::make_pair(3, "Value3")};
 
  public:
   using sled::StrongEnum<uint32_t, TestEnum>::StrongEnum;

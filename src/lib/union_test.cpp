@@ -43,5 +43,5 @@ TEST_F(UnionTest, named_union) {
 
 TEST_F(UnionTest, named_union_string) {
   TestUnion tu{0};
-  EXPECT_EQ("0x00", to_string(tu));
+  EXPECT_EQ("0x0000", to_string(tu));
 }

@@ -126,6 +126,11 @@ struct StrongEnum {
  public:
   StrongEnum() = default;
 
+  using name_type = std::pair<T, const char *>;
+
+  template <int SIZE>
+  using names_type = std::array<std::pair<T, const char *>, SIZE>;
+
   template <typename Ta>
   explicit constexpr StrongEnum(Ta v) : v(static_cast<T>(v)) {}
 
@@ -162,24 +167,25 @@ struct StrongEnum {
 
   friend inline std::ostream &operator<<(std::ostream &os,
                                          StrongEnum const &e) {
-    auto &names = Tag::names;
-    if (e.v >= names.size()) {
-      os << "Invalid<" << e.v << ">";
-    } else {
-      os << names[e.v];
+    for (auto &name : Tag::names) {
+      if (name.first == e.v) {
+        os << name.second;
+        return os;
+      }
     }
+    os << "Invalid<" << e.v << ">";
     return os;
   }
 
   static inline StrongEnum from_string(std::string const &obj) {
     // TODO(dan): rework this function so it can be constexpr
     auto str = str_tolower(obj);
-    for (size_t i = 0; i < Tag::names.size(); i++) {
-      if (str == str_tolower(Tag::names[i])) {
-        return StrongEnum{i};
+    for (auto &name : Tag::names) {
+      if (str == str_tolower(name.second)) {
+        return StrongEnum{name.first};
       }
     }
-    throw ConversionError(obj);
+    throw sled::ConversionError(obj);
   }
 
   friend a_forceinline std::string to_string(StrongEnum const &obj) {

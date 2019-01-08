@@ -66,8 +66,11 @@ struct Facility : StrongEnum<uint32_t, Facility> {
   static Facility const User2;
   static Facility const User3;
 
-  static constexpr std::array<const char *, 8> names{
-      "None", "Util", "Exec", "Perf", "Test", "User1", "User2", "User3"};
+  static constexpr std::array<name_type, 8> names{
+      std::make_pair(0, "None"),  std::make_pair(1, "Util"),
+      std::make_pair(2, "Exec"),  std::make_pair(3, "Perf"),
+      std::make_pair(4, "Test"),  std::make_pair(5, "User1"),
+      std::make_pair(6, "User2"), std::make_pair(7, "User3")};
 
  public:
   using StrongEnum<uint32_t, Facility>::StrongEnum;
