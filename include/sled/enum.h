@@ -126,17 +126,16 @@ struct StrongEnum {
  public:
   StrongEnum() = default;
 
+  using our_type = Tag;
+  using field_type = T;
   using name_type = std::pair<T, const char *>;
-
-  template <int SIZE>
-  using names_type = std::array<std::pair<T, const char *>, SIZE>;
 
   template <typename Ta>
   explicit constexpr StrongEnum(Ta v) : v(static_cast<T>(v)) {}
 
   T v{0};
 
-  explicit constexpr operator T() const noexcept { return v; }
+  constexpr operator T() const noexcept { return v; }
 
   a_forceinline constexpr explicit operator bool() const noexcept {
     return v != 0;
@@ -167,7 +166,7 @@ struct StrongEnum {
 
   friend inline std::ostream &operator<<(std::ostream &os,
                                          StrongEnum const &e) {
-    for (auto &name : Tag::names) {
+    for (auto &name : our_type::names) {
       if (name.first == e.v) {
         os << name.second;
         return os;
@@ -177,22 +176,114 @@ struct StrongEnum {
     return os;
   }
 
-  static inline StrongEnum from_string(std::string const &obj) {
+  static inline Tag from_string(std::string const &obj) {
     // TODO(dan): rework this function so it can be constexpr
     auto str = str_tolower(obj);
-    for (auto &name : Tag::names) {
+    for (auto &name : our_type::names) {
       if (str == str_tolower(name.second)) {
-        return StrongEnum{name.first};
+        return Tag{name.first};
       }
     }
     throw sled::ConversionError(obj);
   }
 
-  friend a_forceinline std::string to_string(StrongEnum const &obj) {
+  friend a_forceinline std::string to_string(Tag const &obj) {
     std::stringstream os;
     os << obj;
     return os.str();
   }
+};
+
+template <typename T, typename Tag>
+class StrongBitField {
+ public:
+  using field_type = typename T::field_type;
+
+  StrongBitField() = default;
+  StrongBitField(std::initializer_list<T> l) {
+    for (auto b : l) {
+      v |= b.v;
+    }
+  }
+  explicit StrongBitField(field_type value) : v(value) {}
+
+  bool empty() const { return v == 0; }
+
+  void zero() { v = 0; }
+
+  field_type &get() { return v; }
+
+  field_type get() const { return v; }
+
+  a_forceinline bool is_set(T t) const { return (v & t.v) != 0; }
+
+  a_forceinline bool is_clear(T t) const { return !is_set(t); }
+
+  void clear(T t) { v &= ~t.v; }
+
+  void set(T t) { v |= t.v; }
+
+  void update(Tag to_set, Tag to_clear) {
+    Tag &t = static_cast<Tag &>(*this);
+    v = (v & ~to_clear.v) | to_set.v;
+  }
+
+  Tag &operator|=(Tag const &rhs) {
+    Tag &t = static_cast<Tag &>(*this);
+    t.v |= rhs.v;
+    return t;
+  }
+
+  Tag &operator|=(const T &rhs) {
+    Tag &t = static_cast<Tag &>(*this);
+    t.v |= rhs.v;
+    return t;
+  }
+
+  Tag operator~() { return ~v; }
+
+  friend inline const Tag operator|(const Tag &lhs, T rhs) {
+    Tag ret(lhs);
+    ret |= rhs;
+    return ret;
+  }
+
+  friend inline constexpr Tag operator|(Tag const &lhs, Tag const &rhs) {
+    Tag ret(lhs);
+    ret |= rhs;
+    return ret;
+  }
+
+  friend bool operator==(Tag const &lhs, Tag const &rhs) {
+    return lhs.v == rhs.v;
+  }
+
+  friend inline std::ostream &operator<<(std::ostream &os, Tag const &rhs) {
+    bool first = true;
+    for (auto &name : T::our_type::names) {
+      if (__builtin_popcount(name.first) != 1) {
+        continue;
+      }
+      if ((name.first & rhs.v) != 0) {
+        if (first) {
+          first = false;
+        } else {
+          os << " | ";
+        }
+        os << name.second;
+      }
+    }
+    return os;
+  }
+
+  friend inline std::string to_string(Tag const &rhs) {
+    std::stringstream ss;
+    ss << rhs;
+    return ss.str();
+  }
+
+ private:
+  field_type v{};
 };
 
 }  // namespace sled
