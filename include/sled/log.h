@@ -23,7 +23,7 @@ namespace sled::log {
  * Higher severities are more important. Messages >= the default severity will
  * be logged.
  */
-struct Severity : StrongEnum<uint32_t, Severity> {
+struct Severity : enum_struct<uint32_t, Severity> {
   static Severity const Trace;
   static Severity const Debug;
   static Severity const Informational;
@@ -33,12 +33,13 @@ struct Severity : StrongEnum<uint32_t, Severity> {
   static Severity const Critical;
   static Severity const Fatal;
 
-  static constexpr std::array<const char *, 8> names{
-      "Trace",   "Debug", "Informational", "Notice",
-      "Warning", "Error", "Critical",      "Fatal"};
+  static constexpr std::array<name_type, 8> names{
+    std::make_pair(0, "Trace"),  std::make_pair(1, "Debug"),
+    std::make_pair(2, "Informational"),  std::make_pair(3, "Notice"),
+    std::make_pair(4, "Warning"),  std::make_pair(5, "Error"),
+    std::make_pair(6, "Critical"), std::make_pair(7, "Fatal")};
 
- public:
-  using StrongEnum<uint32_t, Severity>::StrongEnum;
+  using enum_struct<uint32_t, Severity>::enum_struct;
 };
 
 constexpr Severity const Severity::Trace{0};
@@ -55,7 +56,7 @@ constexpr Severity const Severity::Fatal{7};
  *
  * TODO(dan): Figure out a way to support custom names.
  */
-struct Facility : StrongEnum<uint32_t, Facility> {
+struct Facility : enum_struct<uint32_t, Facility> {
  public:
   static Facility const None;
   static Facility const Util;
@@ -72,8 +73,7 @@ struct Facility : StrongEnum<uint32_t, Facility> {
       std::make_pair(4, "Test"),  std::make_pair(5, "User1"),
       std::make_pair(6, "User2"), std::make_pair(7, "User3")};
 
- public:
-  using StrongEnum<uint32_t, Facility>::StrongEnum;
+  using enum_struct<uint32_t, Facility>::enum_struct;
 };
 
 constexpr Facility const Facility::None{0};

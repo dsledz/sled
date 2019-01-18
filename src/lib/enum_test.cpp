@@ -13,7 +13,7 @@ class EnumTest : public ::testing::Test {
   EnumTest() = default;
 };
 
-struct TestEnum final : sled::StrongEnum<uint32_t, TestEnum> {
+struct TestEnum final : sled::enum_struct<uint32_t, TestEnum> {
  public:
   static TestEnum const Value0;
   static TestEnum const Value1;
@@ -24,8 +24,7 @@ struct TestEnum final : sled::StrongEnum<uint32_t, TestEnum> {
       std::make_pair(0, "Value0"), std::make_pair(1, "Value1"),
       std::make_pair(2, "Value2"), std::make_pair(3, "Value3")};
 
- public:
-  using sled::StrongEnum<uint32_t, TestEnum>::StrongEnum;
+  using sled::enum_struct<uint32_t, TestEnum>::enum_struct;
 };
 
 constexpr TestEnum const TestEnum::Value0{0};

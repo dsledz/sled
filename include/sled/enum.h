@@ -25,6 +25,7 @@ static inline R a_const enum_val(T t) {
   return static_cast<typename std::underlying_type<T>::type>(t);
 }
 
+// TODO(dan): Is this required?
 template <typename T>
 class Enum {
  public:
@@ -122,16 +123,16 @@ class BitField {
 };
 
 template <typename T, typename Tag>
-struct StrongEnum {
+struct enum_struct {
  public:
-  StrongEnum() = default;
+  enum_struct() = default;
 
   using our_type = Tag;
   using field_type = T;
   using name_type = std::pair<T, const char *>;
 
   template <typename Ta>
-  explicit constexpr StrongEnum(Ta v) : v(static_cast<T>(v)) {}
+  explicit constexpr enum_struct(Ta v) : v(static_cast<T>(v)) {}
 
   T v{0};
 
@@ -141,31 +142,31 @@ struct StrongEnum {
     return v != 0;
   }
 
-  a_forceinline constexpr bool operator>(StrongEnum const &rhs) const noexcept {
+  a_forceinline constexpr bool operator>(enum_struct const &rhs) const noexcept {
     return v > rhs.v;
   }
-  a_forceinline constexpr bool operator>=(StrongEnum const &rhs) const
+  a_forceinline constexpr bool operator>=(enum_struct const &rhs) const
       noexcept {
     return v >= rhs.v;
   }
-  a_forceinline constexpr bool operator<(StrongEnum const &rhs) const noexcept {
+  a_forceinline constexpr bool operator<(enum_struct const &rhs) const noexcept {
     return v < rhs.v;
   }
-  a_forceinline constexpr bool operator<=(StrongEnum const &rhs) const
+  a_forceinline constexpr bool operator<=(enum_struct const &rhs) const
       noexcept {
     return v <= rhs.v;
   }
-  a_forceinline constexpr bool operator==(StrongEnum const &rhs) const
+  a_forceinline constexpr bool operator==(enum_struct const &rhs) const
       noexcept {
     return v == rhs.v;
   }
-  a_forceinline constexpr bool operator!=(StrongEnum const &rhs) const
+  a_forceinline constexpr bool operator!=(enum_struct const &rhs) const
       noexcept {
     return v != rhs.v;
   }
 
   friend inline std::ostream &operator<<(std::ostream &os,
-                                         StrongEnum const &e) {
+                                         enum_struct const &e) {
     for (auto &name : our_type::names) {
       if (name.first == e.v) {
         os << name.second;
