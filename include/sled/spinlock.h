@@ -6,12 +6,16 @@
 #pragma once
 
 #include <atomic>
+#include "sled/lock.h"
 #include "sled/platform.h"
 
 namespace sled::sync {
 
 class SpinLock {
  public:
+  using lock_guard = sled::sync::lock_guard<SpinLock>;
+  using unlock_guard = sled::sync::lock_guard<SpinLock>;
+
   SpinLock() = default;
 
   inline void lock() {

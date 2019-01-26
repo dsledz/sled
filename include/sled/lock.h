@@ -45,6 +45,7 @@ class lock_guard {
     m_locked = true;
   }
 
+  template <class = std::enable_if<std::is_same_v<std::mutex, mtx_type>>>
   void wait(std::condition_variable& cv) {
     std::unique_lock<mtx_type> lock(m_mtx, std::adopt_lock);
     cv.wait(lock);

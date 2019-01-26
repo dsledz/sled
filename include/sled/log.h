@@ -32,12 +32,14 @@ struct Severity : enum_struct<uint32_t, Severity> {
   static Severity const Error;
   static Severity const Critical;
   static Severity const Fatal;
+  static Severity const Inherited;
 
-  static constexpr std::array<name_type, 8> names{
-    std::make_pair(0, "Trace"),  std::make_pair(1, "Debug"),
-    std::make_pair(2, "Informational"),  std::make_pair(3, "Notice"),
-    std::make_pair(4, "Warning"),  std::make_pair(5, "Error"),
-    std::make_pair(6, "Critical"), std::make_pair(7, "Fatal")};
+  static constexpr std::array<name_type, 9> names{
+      std::make_pair(0, "Trace"),         std::make_pair(1, "Debug"),
+      std::make_pair(2, "Informational"), std::make_pair(3, "Notice"),
+      std::make_pair(4, "Warning"),       std::make_pair(5, "Error"),
+      std::make_pair(6, "Critical"),      std::make_pair(7, "Fatal"),
+      std::make_pair(8, "Inherited")};
 
   using enum_struct<uint32_t, Severity>::enum_struct;
 };
@@ -50,6 +52,7 @@ constexpr Severity const Severity::Warning{4};
 constexpr Severity const Severity::Error{5};
 constexpr Severity const Severity::Critical{6};
 constexpr Severity const Severity::Fatal{7};
+constexpr Severity const Severity::Inherited{8};
 
 /**
  * Facility.
