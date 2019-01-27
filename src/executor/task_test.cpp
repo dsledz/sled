@@ -24,17 +24,17 @@ TEST_F(MockedTaskTest, execute) {
 
 TEST_F(MockedTaskTest, schedule_task) {
   auto task = exec_ctx.create_task([]() { return 5; });
-  auto &f1 = task.queue_start();
+  auto f1 = task.queue_start();
   exec_ctx.resume();
-  EXPECT_EQ(5, f1.wait());
+  EXPECT_EQ(5, f1->wait());
 }
 
 TEST_F(MockedTaskTest, void_return) {
   int count = 0;
   auto task = exec_ctx.create_task([&]() { count++; });
-  auto &f1 = task.queue_start();
+  auto f1 = task.queue_start();
   exec_ctx.resume();
-  f1.wait();
+  f1->wait();
   EXPECT_EQ(1, count);
 }
 
@@ -43,19 +43,19 @@ TEST_F(MockedTaskTest, multiple_tasks) {
   auto task2 = exec_ctx.create_task([]() { return 2; });
   auto task3 = exec_ctx.create_task([]() { return 3; });
   auto task4 = exec_ctx.create_task([]() { return 4; });
-  auto &f1 = task1.queue_start();
-  auto &f2 = task2.queue_start();
-  auto &f3 = task3.queue_start();
-  auto &f4 = task4.queue_start();
+  auto f1 = task1.queue_start();
+  auto f2 = task2.queue_start();
+  auto f3 = task3.queue_start();
+  auto f4 = task4.queue_start();
   exec_ctx.resume_pending();
-  EXPECT_TRUE(f1.valid());
-  EXPECT_FALSE(f2.valid());
+  EXPECT_TRUE(f1->valid());
+  EXPECT_FALSE(f2->valid());
   exec_ctx.resume_pending();
-  EXPECT_TRUE(f2.valid());
-  EXPECT_FALSE(f3.valid());
+  EXPECT_TRUE(f2->valid());
+  EXPECT_FALSE(f3->valid());
   exec_ctx.resume();
-  EXPECT_TRUE(f3.valid());
-  EXPECT_TRUE(f4.valid());
+  EXPECT_TRUE(f3->valid());
+  EXPECT_TRUE(f4->valid());
 }
 
 #if 0

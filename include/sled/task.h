@@ -170,7 +170,7 @@ class ExecTask : public task_type_t<Fn> {
 
   auto execute() { return closure_(); }
 
-  future_t &execute_async() {
+  future_t *execute_async() {
     if constexpr (std::is_same<void, result_t>::value) {
       closure_();
       future_.set_result();
@@ -178,14 +178,14 @@ class ExecTask : public task_type_t<Fn> {
       auto result = closure_();
       future_.set_result(result);
     }
-    return future_;
+    return &future_;
   }
 
   /**
    * Queue task to start.
    */
-  future_t &queue_start() {
-    future_t &f = future_;
+  future_t *queue_start() {
+    future_t *f = &future_;
     exec_ctx_->schedule(this);
     return f;
   }

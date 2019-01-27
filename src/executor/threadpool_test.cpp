@@ -41,8 +41,8 @@ TEST_F(TpExecutorTest, task_queued_after_thread) {
     return true;
   });
   auto thr = std::thread{thread_fn, &exec_ctx};
-  auto &f1 = task.queue_start();
-  EXPECT_EQ(true, f1.wait());
+  auto f1 = task.queue_start();
+  EXPECT_EQ(true, f1->wait());
   EXPECT_EQ(1, count);
   exec_ctx.shutdown();
   thr.join();
@@ -52,8 +52,8 @@ TEST_F(TpExecutorTest, task_queued_after_thread_void) {
   int count = 0;
   auto task = exec_ctx.create_task([&]() { count++; });
   auto thr = std::thread{thread_fn, &exec_ctx};
-  auto &f1 = task.queue_start();
-  f1.wait();
+  auto f1 = task.queue_start();
+  f1->wait();
   EXPECT_EQ(1, count);
   exec_ctx.shutdown();
   thr.join();
@@ -65,9 +65,9 @@ TEST_F(TpExecutorTest, task_queued_before_thread) {
     count++;
     return true;
   });
-  auto &f1 = task.queue_start();
+  auto f1 = task.queue_start();
   auto thr = std::thread{thread_fn, &exec_ctx};
-  EXPECT_EQ(true, f1.wait());
+  EXPECT_EQ(true, f1->wait());
   EXPECT_EQ(1, count);
   exec_ctx.shutdown();
   thr.join();
@@ -79,9 +79,9 @@ TEST_F(TpExecutorTest, task_queued_same_thread) {
     count++;
     return true;
   });
-  auto &f1 = task.queue_start();
+  auto f1 = task.queue_start();
   exec_ctx.resume_pending();
-  EXPECT_EQ(true, f1.wait());
+  EXPECT_EQ(true, f1->wait());
   EXPECT_EQ(1, count);
   exec_ctx.shutdown();
 }

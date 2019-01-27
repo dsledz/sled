@@ -29,9 +29,9 @@ TEST_F(MockedFutureTest, construct) {
 
 TEST_F(MockedFutureTest, mock_execute_async) {
   auto task = exec_ctx.create_task([]() { return 5; });
-  auto &f1 = task.execute_async();
-  EXPECT_TRUE(f1.valid());
-  EXPECT_EQ(5, f1.get().value());
+  auto f1 = task.execute_async();
+  EXPECT_TRUE(f1->valid());
+  EXPECT_EQ(5, f1->get().value());
 }
 
 template <typename executor_t, typename Fn>
@@ -44,9 +44,9 @@ struct task_wrapper {
 
 TEST_F(MockedFutureTest, wrapped_execute_async) {
   task_wrapper wrapper(&exec_ctx, []() { return 5; });
-  auto &f1 = wrapper.task.execute_async();
-  EXPECT_TRUE(f1.valid());
-  EXPECT_EQ(5, f1.get().value());
+  auto f1 = wrapper.task.execute_async();
+  EXPECT_TRUE(f1->valid());
+  EXPECT_EQ(5, f1->get().value());
 }
 
 TEST_F(MockedFutureTest, get_valid) {
