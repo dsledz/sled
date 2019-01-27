@@ -225,12 +225,17 @@ class LoggingManager {
   explicit LoggingManager(Sink default_sink);
   ~LoggingManager();
 
+  void set_threshold(Severity sev);
   void set_default_severity(Severity sev);
   void set_default_sink(Sink sink);
 
+  void increase_threshold();
+  void decrease_threshold();
+
+  Severity threshold() { return threshold_sev_; }
   Facility add_facility(std::string const &facility);
 
-  a_forceinline bool enabled(Severity sev) { return default_sev_ <= sev; }
+  a_forceinline bool enabled(Severity sev) { return threshold_sev_ <= sev; }
 
   /*
    * TODO(dan): Add multiple sink support
@@ -245,6 +250,7 @@ class LoggingManager {
   }
 
  private:
+  Severity threshold_sev_;
   Severity default_sev_;
   Sink default_sink_;
   std::atomic<uint32_t> last_facility_;
