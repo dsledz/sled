@@ -1,7 +1,7 @@
 message(STATUS "Configuring source...")
 
 add_subdirectory(lib)
-if (BUILD_LUA)
+if (SLED_BUILD_LUA)
     add_subdirectory(lua)
-endif (BUILD_LUA)
+endif (SLED_BUILD_LUA)
 add_subdirectory(executor)

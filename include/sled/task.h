@@ -28,7 +28,7 @@ enum class TaskFlag {
   Suspended = 0x20, /**< Suspended */
 };
 
-using TaskFlags = BitField<TaskFlag>;
+using TaskFlags = bitfield<TaskFlag>;
 
 /**
  * Task identifier.

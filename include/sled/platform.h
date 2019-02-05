@@ -13,6 +13,11 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <thread>
+#include <vector>
+#include <map>
+#include <unordered_map>
+#include <functional>
 
 #ifdef WIN32
 #define a_used

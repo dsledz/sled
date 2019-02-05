@@ -8,7 +8,7 @@
 
 #include "sled/base64.h"
 
-using namespace sled;
+namespace sled {
 using bvec = std::vector<std::byte>;
 
 constexpr static inline std::byte operator"" _b(unsigned long long n) {
@@ -44,4 +44,6 @@ TEST(Base64Test, first_char) {
     auto actual = base64_decode(str);
     EXPECT_EQ(expected, actual);
   }
+}
+
 }

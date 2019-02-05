@@ -9,7 +9,7 @@
 #include "gtest/gtest.h"
 
 // XXX: eww
-using namespace sled;
+namespace sled {
 
 struct TestStats : public StatsImpl {
   Counter<int> StatA{0};
@@ -56,4 +56,6 @@ TEST_F(StatisticsTest, increment) {
   EXPECT_EQ(2, report.get("StatA"));
   EXPECT_EQ(10.0, report.get("StatB"));
   EXPECT_EQ(50, report.get("StatC"));
+}
+
 }

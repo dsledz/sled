@@ -1,6 +1,6 @@
 message(STATUS "Building 3rd party dependencies")
 
-if (BUILD_GTEST)
+if (SLED_BUILD_GTEST)
     message(STATUS "Building GTest via external Project")
     if (REBUILD_3RDPARTY)
         # Download and unpack googletest at configure time
@@ -37,4 +37,4 @@ if (BUILD_GTEST)
     set_target_properties(gtest_main PROPERTIES FOLDER 3rdParty)
     set_target_properties(gmock PROPERTIES FOLDER 3rdParty)
     set_target_properties(gmock_main PROPERTIES FOLDER 3rdParty)
-endif (BUILD_GTEST)
+endif (SLED_BUILD_GTEST)

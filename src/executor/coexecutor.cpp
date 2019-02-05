@@ -21,6 +21,7 @@ TaskId CoExecutor::current_task_id() { return cur_task()->id(); }
 void CoExecutor::cur_task_suspend() { cur_task()->suspend(); }
 
 Task *CoExecutor::adopt_thread() {
+  assert(CoExecutor::current_task_ == nullptr);
   auto task = std::make_unique<CoThreadTask>(this);
   CoExecutor::current_task_ = task.get();
   auto base_task = std::unique_ptr<Task>(std::move(task));

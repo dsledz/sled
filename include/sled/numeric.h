@@ -91,6 +91,17 @@ class Integer {
   }
 };
 
+template <class T>
+inline T from_integer(const Integer &integer) {
+  if constexpr (std::is_integral<T>::value || std::is_enum<T>::value) {
+    return static_cast<T>(integer.v);
+  } else if constexpr (sled::is_wrapped_integer<T>::value) {
+    return T(integer.v);
+  }
+  // XXX: This should be a compile time error.
+  throw sled::ConversionError("integer", "integer conversion not supported");
+}
+
 /**
  * Hex Integer formatting flags.
  */
@@ -134,6 +145,10 @@ class Hex {
     return os;
   }
 
+  friend inline bool operator==(const Hex &lhs, const Hex &rhs) {
+    return lhs.v == rhs.v && lhs.w == rhs.w;
+  }
+
   static inline Hex from_string(std::string const &obj) {
     // XXX: Pick the correct width.
     return Hex(stoull(obj, nullptr, 0));
@@ -151,7 +166,7 @@ class Hex {
  */
 class AltHex {
  public:
-  using Flags = BitField<HexFormat>;
+  using Flags = bitfield<HexFormat>;
   template <typename T,
             class = typename std::enable_if<is_wrapped_integer<T>::value>::type>
   explicit constexpr AltHex(T arg, Flags flags = Flags{}, T /*unused*/ = {})
@@ -193,5 +208,72 @@ class AltHex {
     return os.str();
   }
 };
+
+/**
+ * Helper to explicitly narrow
+ */
+struct u8 {
+  constexpr explicit u8(int v) : v(static_cast<uint8_t>(v)) {}
+  constexpr inline operator uint8_t() const { return v; }
+  uint8_t v{};
+};
+
+template <>
+struct __is_wrapped_integer_helper<u8> : public std::true_type {};
+
+/**
+ * Saturated u8 cast
+ */
+struct u8s {
+  constexpr explicit u8s(int v)
+      : v(static_cast<uint8_t>(std::min(
+            v, static_cast<int>((std::numeric_limits<uint8_t>::max)())))) {}
+  constexpr inline operator uint8_t() const { return v; }
+  uint8_t v{};
+};
+
+template <>
+struct __is_wrapped_integer_helper<u8s> : public std::true_type {};
+
+#if 0
+/*  ____  _ _      ___
+ * | __ )(_) |_   / _ \ _ __  ___
+ * |  _ \| | __| | | | | '_ \/ __|
+ * | |_) | | |_  | |_| | |_) \__ \
+ * |____/|_|\__|  \___/| .__/|___/
+ *                     |_|
+ */
+template <typename A, typename T,
+          class = typename std::enable_if_t<std::is_enum_v<T> > >
+static inline A bit_set(A arg, T bit, bool val) {
+  auto n = static_cast<typename std::underlying_type<T>::type>(bit);
+  arg &= ~(1u << n);
+  arg |= (val ? (1u << n) : 0);
+  return arg;
+}
+
+template <typename A>
+constexpr static inline A bit_set(A arg, unsigned n, bool val) {
+  arg &= ~(1u << n);
+  arg |= (val ? (1u << n) : 0);
+  return arg;
+}
+
+constexpr static inline uint8_t bit_setmask(uint8_t arg, uint8_t mask, uint8_t val) {
+  return (arg & ~mask) | val;
+}
+
+template <typename A>
+constexpr static a_forceinline bool bit_isset(A arg, int bit) {
+  return (((arg) & (1u << (bit))) != 0);
+}
+
+template <typename A>
+constexpr static a_forceinline A bit_toggle(A arg1, A arg2, int bit) {
+  return ((bit_isset((arg1), (bit)) ^ bit_isset((arg2), (bit))) &&
+   bit_isset((arg1), (bit)));
+}
+
+#endif
 
 };  // namespace sled

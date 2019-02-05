@@ -29,13 +29,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fstrict-vtable-pointers
 #
 # Build Options
 #
-option(BUILD_UNIT_TESTS "Build unit tests" ON)
-option(BUILD_TESTS "Build stand-alone tests" ON)
-if (BUILD_UNIT_TESTS OR BUILD_TESTS)
-    set(BUILD_GTEST ON)
-endif()
-option(BUILD_DOCS "Build docs" ON)
-option(BUILD_LUA "Build LUA" ON)
+option(SLED_BUILD_UNIT_TESTS "Build unit tests" ON)
+option(SLED_BUILD_TESTS "Build stand-alone tests" ON)
+option(SLED_BUILD_GTEST "Build gtest" ON)
+option(SLED_BUILD_DOCS "Build docs" ON)
+option(SLED_BUILD_LUA "Build LUA" ON)
 
 #
 # Helper function to add unit test
@@ -50,7 +48,7 @@ function(add_unit_test)
     if(NOT PARSED_ARGS_NAME)
         message(FATAL_ERROR "You must provide a name to add_unit_test")
     endif(NOT PARSED_ARGS_NAME)
-    if (BUILD_UNIT_TESTS)
+    if (SLED_BUILD_UNIT_TESTS)
         add_executable(
             ${PARSED_ARGS_NAME}
             ${PARSED_ARGS_SRC})
@@ -59,7 +57,7 @@ function(add_unit_test)
             gtest gtest_main)
         add_test(${PARSED_ARGS_NAME} ${PARSED_ARGS_NAME})
         set_target_properties(${PARSED_ARGS_NAME} PROPERTIES FOLDER Tests)
-    endif (BUILD_UNIT_TESTS)
+    endif (SLED_BUILD_UNIT_TESTS)
 endfunction(add_unit_test)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -Wall -Werror -g -Wno-unused-private-field -Wuninitialized -O0")
@@ -73,9 +71,9 @@ include_directories(3rdparty)
 
 add_subdirectory(include)
 add_subdirectory(src)
-if (BUILD_TESTS)
+if (SLED_BUILD_TESTS)
     add_subdirectory(test)
-endif (BUILD_TESTS)
-if (BUILD_DOCS)
+endif (SLED_BUILD_TESTS)
+if (SLED_BUILD_DOCS)
     add_subdirectory(docs)
-endif (BUILD_DOCS)
+endif (SLED_BUILD_DOCS)

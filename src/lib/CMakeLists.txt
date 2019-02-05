@@ -5,7 +5,7 @@ add_library(sled-lib
     )
 
 add_unit_test(
-    NAME lib-check
+    NAME sled-lib-check
     SRC base64_test.cpp
         crc_test.cpp
         enum_test.cpp

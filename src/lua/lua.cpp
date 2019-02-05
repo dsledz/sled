@@ -6,7 +6,7 @@
 
 #include "sled/lua.h"
 
-using namespace sled::lua;
+namespace sled::lua {
 
 LuaSupport::LuaSupport() : lua_(luaL_newstate(), lua_close) {
   load_libraries();
@@ -21,4 +21,6 @@ void LuaSupport::load_libraries() {
   luaopen_string(lua_.get());
   luaopen_math(lua_.get());
   luaL_openlibs(lua_.get());
+}
+
 }

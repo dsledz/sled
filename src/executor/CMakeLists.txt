@@ -25,7 +25,7 @@ target_link_libraries(sled-exec
     sled-lib)
 
 add_unit_test(
-    NAME executor-check
+    NAME sled-executor-check
     SRC atomic_test.cpp
         channel_test.cpp
         coexecutor_test.cpp

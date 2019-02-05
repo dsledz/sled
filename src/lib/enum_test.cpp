@@ -56,3 +56,26 @@ TEST_F(EnumTest, unknown_enum) {
 
   EXPECT_EQ("Invalid<100>", ss.str());
 }
+
+TEST_F(EnumTest, switch_statement) {
+  auto te = TestEnum::Value0;
+  int v = -1;
+
+  switch (te) {
+    case TestEnum::Value0:
+      v = 0;
+      break;
+    case TestEnum::Value1:
+      v = 1;
+      break;
+    case TestEnum::Value2:
+      v = 2;
+      break;
+    case TestEnum::Value3:
+      v = 3;
+      break;
+  };
+
+  EXPECT_EQ(0, v);
+}
+

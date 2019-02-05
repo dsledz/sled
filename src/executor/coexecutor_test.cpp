@@ -30,17 +30,17 @@ class CoExecutorTest : public ::testing::Test {
 
 TEST_F(CoExecutorTest, schedule_task) {
   auto task = exec_ctx.create_task([]() { return 5; });
-  auto &f1 = task.queue_start();
+  auto f1 = task.queue_start();
   exec_ctx.resume_pending();
-  EXPECT_EQ(5, f1.wait());
+  EXPECT_EQ(5, f1->wait());
 }
 
 TEST_F(CoExecutorTest, task_queue_void) {
   int count = 0;
   auto task = exec_ctx.create_task([&]() { count++; });
-  auto &f1 = task.queue_start();
+  auto f1 = task.queue_start();
   exec_ctx.resume_pending();
-  f1.wait();
+  f1->wait();
   EXPECT_EQ(1, count);
 }
 
@@ -60,10 +60,10 @@ TEST_F(CoExecutorTest, producer_consumer_same_thread) {
       channel.put(i);
     }
   });
-  auto &f1 = consumer.queue_start();
-  auto &f2 = producer.queue_start();
-  f2.wait();
-  f1.wait();
+  auto f1 = consumer.queue_start();
+  auto f2 = producer.queue_start();
+  f2->wait();
+  f1->wait();
   EXPECT_EQ(45, total);
   exec_ctx.shutdown();
 }
@@ -85,10 +85,10 @@ TEST_F(CoExecutorTest, producer_consumer) {
       channel.put(i);
     }
   });
-  auto &f1 = consumer.queue_start();
-  auto &f2 = producer.queue_start();
-  f2.wait();
-  f1.wait();
+  auto f1 = consumer.queue_start();
+  auto f2 = producer.queue_start();
+  f2->wait();
+  f1->wait();
   EXPECT_EQ(45, total);
   exec_ctx.shutdown();
   thr.join();
@@ -112,10 +112,10 @@ TEST_F(CoExecutorTest, producer_consumer_as_return) {
       channel.put(i);
     }
   });
-  auto &f1 = consumer.queue_start();
-  auto &f2 = producer.queue_start();
-  f2.wait();
-  EXPECT_EQ(45, f1.wait());
+  auto f1 = consumer.queue_start();
+  auto f2 = producer.queue_start();
+  f2->wait();
+  EXPECT_EQ(45, f1->wait());
   exec_ctx.shutdown();
   thr.join();
 }
@@ -137,10 +137,10 @@ TEST_F(CoExecutorTest, producer_consumer_put_wait) {
       channel.put(i);
     }
   });
-  auto &f1 = consumer.queue_start();
-  auto &f2 = producer.queue_start();
-  f2.wait();
-  f1.wait();
+  auto f1 = consumer.queue_start();
+  auto f2 = producer.queue_start();
+  f2->wait();
+  f1->wait();
   EXPECT_EQ(499500, total);
   exec_ctx.shutdown();
   thr.join();

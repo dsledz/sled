@@ -55,17 +55,17 @@ typename Enum<T>::Iterator end(Enum<T> /*unused*/) {
 }
 
 template <typename T>
-class BitField {
+class bitfield {
  public:
   using field_type = typename std::underlying_type<T>::type;
 
-  BitField() = default;
-  BitField(std::initializer_list<T> l) {
+  bitfield() = default;
+  bitfield(std::initializer_list<T> l) {
     for (auto b : l) {
       value_ |= static_cast<field_type>(b);
     }
   }
-  explicit BitField(field_type value) : value_(value) {}
+  explicit bitfield(field_type value) : value_(value) {}
 
   bool empty() const { return value_ == 0; }
 
@@ -85,36 +85,36 @@ class BitField {
 
   void set(T t) { value_ |= static_cast<field_type>(t); }
 
-  void update(BitField to_set, BitField to_clear) {
+  void update(bitfield to_set, bitfield to_clear) {
     value_ = (value_ & ~to_clear.value_) | to_set.value_;
   }
 
-  BitField<T> &operator|=(const BitField<T> &rhs) {
+  bitfield<T> &operator|=(const bitfield<T> &rhs) {
     value_ |= rhs.value_;
     return *this;
   }
 
-  BitField<T> &operator|=(const T &rhs) {
+  bitfield<T> &operator|=(const T &rhs) {
     value_ |= static_cast<field_type>(rhs);
     return *this;
   }
 
-  BitField<T> operator~() { return ~value_; }
+  bitfield<T> operator~() { return ~value_; }
 
-  friend inline const BitField<T> operator|(const BitField<T> &lhs, T rhs) {
-    BitField<T> ret(lhs);
+  friend inline const bitfield<T> operator|(const bitfield<T> &lhs, T rhs) {
+    bitfield<T> ret(lhs);
     ret |= rhs;
     return ret;
   }
 
-  friend inline constexpr BitField<T> operator|(BitField<T> const &lhs,
-                                                BitField<T> const &rhs) {
-    BitField<T> ret(lhs);
+  friend inline constexpr bitfield<T> operator|(bitfield<T> const &lhs,
+                                                bitfield<T> const &rhs) {
+    bitfield<T> ret(lhs);
     ret |= rhs;
     return ret;
   }
 
-  friend bool operator==(const BitField &lhs, const BitField &rhs) {
+  friend bool operator==(const bitfield &lhs, const bitfield &rhs) {
     return lhs.value_ == rhs.value_;
   }
 
@@ -196,17 +196,17 @@ struct enum_struct {
 };
 
 template <typename T, typename Tag>
-class StrongBitField {
+class enum_bitfield {
  public:
   using field_type = typename T::field_type;
 
-  StrongBitField() = default;
-  StrongBitField(std::initializer_list<T> l) {
+  enum_bitfield() = default;
+  enum_bitfield(std::initializer_list<T> l) {
     for (auto b : l) {
       v |= b.v;
     }
   }
-  explicit StrongBitField(field_type value) : v(value) {}
+  explicit enum_bitfield(field_type value) : v(value) {}
 
   bool empty() const { return v == 0; }
 

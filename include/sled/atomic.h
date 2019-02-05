@@ -13,20 +13,20 @@
 namespace sled {
 
 template <typename T>
-class AtomicBitField {
+class atomic_bitfield {
  public:
   using field_type = typename std::underlying_type<T>::type;
-  using nonatomic_type = sled::BitField<T>;
+  using nonatomic_type = sled::bitfield<T>;
 
-  AtomicBitField() = default;
-  AtomicBitField(std::initializer_list<T> l) {
+  atomic_bitfield() = default;
+  atomic_bitfield(std::initializer_list<T> l) {
     field_type value{};
     for (auto b : l) {
       value |= static_cast<field_type>(b);
     }
     value_ = value;
   }
-  explicit AtomicBitField(field_type value) : value_(value) {}
+  explicit atomic_bitfield(field_type value) : value_(value) {}
 
   bool empty() const { return value_ == 0; }
 
@@ -71,44 +71,44 @@ class AtomicBitField {
     return std::atomic_compare_exchange_strong(&value_, &old_v, new_v);
   }
 
-  AtomicBitField<T>& operator|=(const AtomicBitField<T>& rhs) {
+  atomic_bitfield<T>& operator|=(const atomic_bitfield<T>& rhs) {
     value_ |= rhs.value_;
     return *this;
   }
 
-  AtomicBitField<T>& operator|=(const T& rhs) {
+  atomic_bitfield<T>& operator|=(const T& rhs) {
     value_ |= static_cast<field_type>(rhs);
     return *this;
   }
 
-  AtomicBitField<T>& operator&=(const AtomicBitField<T>& rhs) {
+  atomic_bitfield<T>& operator&=(const atomic_bitfield<T>& rhs) {
     value_ &= rhs.value_;
     return *this;
   }
 
-  AtomicBitField<T>& operator&=(const T& rhs) {
+  atomic_bitfield<T>& operator&=(const T& rhs) {
     value_ |= static_cast<field_type>(rhs);
     return *this;
   }
 
-  AtomicBitField<T> operator~() { return ~value_.load(); }
+  atomic_bitfield<T> operator~() { return ~value_.load(); }
 
-  friend nonatomic_type operator|(AtomicBitField const& lhs,
-                                  AtomicBitField<T> const& rhs) {
+  friend nonatomic_type operator|(atomic_bitfield const& lhs,
+                                  atomic_bitfield<T> const& rhs) {
     return nonatomic_type{lhs.value_.load() | rhs.value_.load()};
   }
 
-  friend nonatomic_type operator|(AtomicBitField const& lhs,
+  friend nonatomic_type operator|(atomic_bitfield const& lhs,
                                   nonatomic_type const& rhs) {
     return nonatomic_type{lhs.value_.load() | rhs.get()};
   }
 
   friend nonatomic_type operator|(nonatomic_type const& lhs,
-                                  AtomicBitField<T> const& rhs) {
+                                  atomic_bitfield<T> const& rhs) {
     return nonatomic_type{lhs.get() | rhs.value_.load()};
   }
 
-  friend bool operator==(AtomicBitField const& lhs, AtomicBitField const& rhs) {
+  friend bool operator==(atomic_bitfield const& lhs, atomic_bitfield const& rhs) {
     return lhs.value_ == rhs.value_;
   }
 

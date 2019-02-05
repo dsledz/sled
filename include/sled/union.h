@@ -18,6 +18,8 @@ struct typed_union {
 
   constexpr typed_union() = default;
   constexpr typed_union(base_type v) : v(v) {}
+  template< typename Ta>
+  constexpr typed_union(Ta v) : v(v) {}
   constexpr typed_union(T b) : b(b) {}
   constexpr typed_union(const typed_union &rhs) = default;
   constexpr typed_union(typed_union &&rhs) = default;
@@ -42,20 +44,20 @@ struct typed_union {
   };
 };
 
-template <typename T, typename base_type, typename Tag>
-struct strong_union {
+template <typename T, typename B, typename Tag>
+struct union_struct {
   static_assert(std::is_trivially_constructible_v<T>);
   static_assert(std::is_default_constructible_v<T>);
-  static_assert(sizeof(T) == sizeof(base_type));
+  static_assert(sizeof(T) == sizeof(B));
   // XXX: static_assert(std::is_trivial_v<T>);
 
-  constexpr strong_union() = default;
-  constexpr strong_union(base_type v) : v(v) {}
-  constexpr strong_union(T b) : b(b) {}
-  constexpr strong_union(const strong_union &rhs) = default;
-  constexpr strong_union(strong_union &&rhs) = default;
-  constexpr strong_union &operator=(const strong_union &that) = default;
-  constexpr strong_union &operator=(strong_union &&that) = default;
+  constexpr union_struct() = default;
+  constexpr union_struct(B v) : v(v) {}
+  constexpr union_struct(T b) : b(b) {}
+  constexpr union_struct(const union_struct &rhs) = default;
+  constexpr union_struct(union_struct &&rhs) = default;
+  constexpr union_struct &operator=(const union_struct &that) = default;
+  constexpr union_struct &operator=(union_struct &&that) = default;
 
   a_forceinline T &get() noexcept { return *safe_cast<T>(&v); }
 
@@ -65,13 +67,19 @@ struct strong_union {
     return *safe_cast<T>(&v);
   }
 
-  inline bool operator!=(const strong_union &rhs) const { return v != rhs.v; };
-  inline bool operator==(const strong_union &rhs) const { return v == rhs.v; };
+  inline bool operator!=(const union_struct &rhs) const { return v != rhs.v; };
+  inline bool operator==(const union_struct &rhs) const { return v == rhs.v; };
+
+  inline Tag &operator=(const B &rhs) {
+    Tag &t = static_cast<Tag &>(*this);
+    t.b = rhs;
+    return t;
+  }
 
   // XXX: Workaround to avoid get() everywhere
   union {
     T b;
-    base_type v;
+    B v;
   };
 };
 

@@ -25,6 +25,11 @@ struct TestInt : public sled::StrongInt<uint32_t, TestInt> {
   }
 };
 
+TEST_F(StrongIntTest, trivial) {
+  static_assert(std::is_trivially_constructible_v<TestInt>);
+  static_assert(std::is_default_constructible_v<TestInt>);
+}
+
 TEST_F(StrongIntTest, inherited) {
   TestInt ti1{100};
   TestInt ti2{10};

@@ -10,37 +10,37 @@
 
 namespace sled {
 
-struct nsec final : public StrongInt<uint64_t, nsec> {
-  using StrongInt<uint64_t, nsec>::StrongInt;
+struct nsec final : public StrongInt<int64_t, nsec> {
+  using StrongInt<int64_t, nsec>::StrongInt;
 
   static inline constexpr nsec from_ts(struct timespec const &t) {
-    return nsec{t.tv_sec * NSECS + t.tv_nsec};
+    return nsec{t.tv_sec * 1'000'000'000ll + t.tv_nsec};
   }
 
   static constexpr auto NSECS = 1ll;
 };
 
-struct usec final : public StrongInt<uint64_t, nsec> {
-  using StrongInt<uint64_t, nsec>::StrongInt;
+struct usec final : public StrongInt<int64_t, nsec> {
+  using StrongInt<int64_t, nsec>::StrongInt;
   static constexpr auto NSECS = 1'000ll;
 };
 
-struct msec final : public StrongInt<uint64_t, nsec> {
-  using StrongInt<uint64_t, nsec>::StrongInt;
+struct msec final : public StrongInt<int64_t, nsec> {
+  using StrongInt<int64_t, nsec>::StrongInt;
   static constexpr auto NSECS = 1'000'000ll;
 };
 
-struct sec final : public StrongInt<uint64_t, nsec> {
-  using StrongInt<uint64_t, nsec>::StrongInt;
+struct sec final : public StrongInt<int64_t, nsec> {
+  using StrongInt<int64_t, nsec>::StrongInt;
   static constexpr auto NSECS = 1'000'000'000ll;
 };
 
-struct time final : public StrongInt<uint64_t, time> {
+struct time final : public StrongInt<int64_t, time> {
   // NOLINTNEXTLINE
   constexpr time() = default;
-  constexpr time(uint64_t t) : StrongInt<uint64_t, time>(t) {}
+  constexpr time(int64_t t) : StrongInt<int64_t, time>(t) {}
   template <typename T>
-  constexpr time(T t) : StrongInt<uint64_t, time>(t.v * T::NSECS) {}
+  constexpr time(T t) : StrongInt<int64_t, time>(t.v * T::NSECS) {}
   // NOLINTNEXTLINE
   inline explicit constexpr operator double() const {
     return double(v) / sec::NSECS;
@@ -54,13 +54,13 @@ struct time final : public StrongInt<uint64_t, time> {
   // NOLINTNEXTLINE
   inline constexpr operator sec() const { return sec(v / sec::NSECS); }
 
-  static inline constexpr time from_nsec(uint64_t v) { return time(nsec(v)); }
+  static inline constexpr time from_nsec(int64_t v) { return time(nsec(v)); }
 
-  static inline constexpr time from_usec(uint64_t v) { return time(usec(v)); }
+  static inline constexpr time from_usec(int64_t v) { return time(usec(v)); }
 
-  static inline constexpr time from_msec(uint64_t v) { return time(msec(v)); }
+  static inline constexpr time from_msec(int64_t v) { return time(msec(v)); }
 
-  static inline constexpr time from_sec(uint64_t v) { return time(sec(v)); }
+  static inline constexpr time from_sec(int64_t v) { return time(sec(v)); }
 
   constexpr size_t reciprocal(size_t num) const noexcept {
     if (v == 0) {

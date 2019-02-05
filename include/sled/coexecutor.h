@@ -90,17 +90,17 @@ class CoTask : public task_type_t<Fn> {
     return closure_();
   }
 
-  future_t &execute_async() {
+  future_t *execute_async() {
     // XXX: This is broken.
     co_enter(this);
-    return future_;
+    return &future_;
   }
 
   /**
    * Queue task to start.
    */
-  future_t &queue_start() {
-    future_t &f = future_;
+  future_t *queue_start() {
+    future_t *f = &future_;
     this->flags_.set(TaskFlag::Queued);
     exec_ctx_->schedule(this);
     return f;
@@ -186,9 +186,11 @@ class CoExecutor : public Executor {
    */
   class CoThreadTask final : public Task {
    public:
-    CoThreadTask(CoExecutor *exec_ctx) : exec_ctx_(exec_ctx) {}
+    CoThreadTask(CoExecutor *exec_ctx) : exec_ctx_(exec_ctx) {
+      assert(current_task_ == nullptr);
+    }
     ~CoThreadTask() {
-      // XXX: assert(current_task_ == this);
+      assert(current_task_ == this);
       CoExecutor::current_task_ = nullptr;
     }
 
@@ -196,7 +198,7 @@ class CoExecutor : public Executor {
       try {
         for (;;) {
           CoExecutor::current_task_ = this;
-          if (auto task_opt = exec_ctx_->try_next(); task_opt.has_value()) {
+          if (auto task_opt = exec_ctx_->next(); task_opt.has_value()) {
             auto *task = task_opt.value();
             CoExecutor::current_task_ = task;
             task->run();
@@ -206,7 +208,6 @@ class CoExecutor : public Executor {
         }
       } catch (std::exception &) {
       }
-      CoExecutor::current_task_ = this;
     }
 
     void suspend() override {

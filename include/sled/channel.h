@@ -24,7 +24,7 @@ class Channel {
   using lock_t = sled::sync::SpinLock;
   using lock_guard_t = sled::sync::lock_guard<lock_t>;
 
-  Channel() : m_objects() {}
+  Channel() : m_mtx(), m_waiting(nullptr), m_objects() {}
   ~Channel() = default;
   Channel(const Channel &ch) = delete;
 
@@ -60,6 +60,7 @@ class Channel {
     lock_guard_t lock(m_mtx);
     assert(m_waiting == NULL);
     auto *task = executor_t::cur_task();
+    assert(task != nullptr);
     while (m_objects.empty()) {
       m_waiting = task;
       lock.unlock();

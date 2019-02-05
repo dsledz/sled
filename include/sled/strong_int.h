@@ -26,11 +26,11 @@ namespace sled {
 template <typename T, typename Tag>
 class StrongInt {
  public:
-  StrongInt() = default;
+  constexpr StrongInt() = default;
   template <typename Ta>
   explicit constexpr StrongInt(Ta v) : v(static_cast<T>(v)) {}
 
-  T v{0};
+  T v;
 
   explicit constexpr operator T() const noexcept { return v; }
 
@@ -131,6 +131,10 @@ class StrongInt {
   static a_forceinline Tag maximum(Tag const &a, Tag const &b,
                                    Ta const &... t) noexcept {
     return maximum(a, maximum(b, t...));
+  }
+
+  static inline Tag from_string(const std::string &obj) {
+    return Tag(stoull(obj, nullptr, 0));
   }
 };
 
