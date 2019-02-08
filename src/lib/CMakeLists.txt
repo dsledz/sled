@@ -16,5 +16,6 @@ add_unit_test(
         strong_int_test.cpp
         time_test.cpp
         union_test.cpp
+        x86arch_test.cpp
     DEPS sled-lib
     )

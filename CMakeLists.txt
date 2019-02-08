@@ -12,6 +12,7 @@ include(cotire)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 set(CMAKE_CXX_STANDARD 17)
 set(TARGET_ARCH "x64" CACHE STRING "Target Architecture")
+set(SLED_X86_64 1 CACHE STRING "Targeting x86-64 Architecture")
 
 #
 # Cortire unity build and precompiled header support.

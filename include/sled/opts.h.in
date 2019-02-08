@@ -1,0 +1,6 @@
+/**
+ * Auto-generated build options.
+ */
+#pragma once
+
+#define SLED_X86_64 @SLED_X86_64@
