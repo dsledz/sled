@@ -19,6 +19,8 @@
 #include <unordered_map>
 #include <functional>
 
+#include "sled/opts.h"
+
 #ifdef WIN32
 #define a_used
 #define a_unused
