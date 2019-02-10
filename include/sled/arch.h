@@ -5,7 +5,6 @@
  */
 #pragma once
 
-#include "sled/opts.h"
 #include "sled/platform.h"
 
 #if SLED_X86_64

@@ -107,6 +107,7 @@ inline T from_integer(const Integer &integer) {
  */
 enum class HexFormat {
   NoPrefix = 0x01,
+  NoPadding = 0x02,
 };
 
 /**
@@ -192,8 +193,11 @@ class AltHex {
     if (obj.flags.is_clear(HexFormat::NoPrefix)) {
       os << "$";
     }
-    os << std::hex << std::uppercase << std::setfill('0') << std::right
-       << std::setw(obj.w) << obj.v;
+    if (obj.flags.is_clear(HexFormat::NoPadding)) {
+      os << std::setfill('0');
+      os << std::setw(obj.w);
+    }
+    os << std::hex << std::uppercase << std::right << obj.v;
     return os;
   }
 
