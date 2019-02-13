@@ -79,3 +79,13 @@ TEST_F(EnumTest, switch_statement) {
   EXPECT_EQ(0, v);
 }
 
+TEST_F(EnumTest, iterate) {
+  int count = 0;
+  std::stringstream ss;
+  for (auto t : TestEnum{}) {
+    ss << t;
+    count++;
+  }
+  EXPECT_EQ(4, count);
+  EXPECT_EQ("Value0Value1Value2Value3", ss.str());
+}

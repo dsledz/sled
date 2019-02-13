@@ -14,58 +14,21 @@
 
 namespace sled {
 
-template <typename T, typename I>
-static inline bool a_const enum_isset(I arg, T bit) {
-  I n = static_cast<typename std::underlying_type<T>::type>(bit);
-  return (arg & (1 << n));
-}
-
-template <typename T, typename R = uint8_t>
-static inline R a_const enum_val(T t) {
-  return static_cast<typename std::underlying_type<T>::type>(t);
-}
-
-// TODO(dan): Is this required?
+/**
+ * Wrapper for flags based upon an "enum class"
+ */
 template <typename T>
-class Enum {
- public:
-  class Iterator {
-   public:
-    explicit Iterator(int value) : m_value(value) {}
-
-    T operator*() const { return T{m_value}; }
-
-    void operator++() { ++m_value; }
-
-    bool operator!=(Iterator rhs) { return m_value != rhs.m_value; }
-
-   private:
-    int m_value;
-  };
-};
-
-template <typename T>
-typename Enum<T>::Iterator begin(Enum<T> /*unused*/) {
-  return typename Enum<T>::Iterator(enum_val(T::First));
-}
-
-template <typename T>
-typename Enum<T>::Iterator end(Enum<T> /*unused*/) {
-  return typename Enum<T>::Iterator(enum_val(T::Last) + 1);
-}
-
-template <typename T>
-class bitfield {
+class flags {
  public:
   using field_type = typename std::underlying_type<T>::type;
 
-  bitfield() = default;
-  bitfield(std::initializer_list<T> l) {
+  flags() = default;
+  flags(std::initializer_list<T> l) {
     for (auto b : l) {
       value_ |= static_cast<field_type>(b);
     }
   }
-  explicit bitfield(field_type value) : value_(value) {}
+  explicit flags(field_type value) : value_(value) {}
 
   bool empty() const { return value_ == 0; }
 
@@ -85,36 +48,36 @@ class bitfield {
 
   void set(T t) { value_ |= static_cast<field_type>(t); }
 
-  void update(bitfield to_set, bitfield to_clear) {
+  void update(flags to_set, flags to_clear) {
     value_ = (value_ & ~to_clear.value_) | to_set.value_;
   }
 
-  bitfield<T> &operator|=(const bitfield<T> &rhs) {
+  flags<T> &operator|=(const flags<T> &rhs) {
     value_ |= rhs.value_;
     return *this;
   }
 
-  bitfield<T> &operator|=(const T &rhs) {
+  flags<T> &operator|=(const T &rhs) {
     value_ |= static_cast<field_type>(rhs);
     return *this;
   }
 
-  bitfield<T> operator~() { return ~value_; }
+  flags<T> operator~() { return ~value_; }
 
-  friend inline const bitfield<T> operator|(const bitfield<T> &lhs, T rhs) {
-    bitfield<T> ret(lhs);
+  friend inline const flags<T> operator|(const flags<T> &lhs, T rhs) {
+    flags<T> ret(lhs);
     ret |= rhs;
     return ret;
   }
 
-  friend inline constexpr bitfield<T> operator|(bitfield<T> const &lhs,
-                                                bitfield<T> const &rhs) {
-    bitfield<T> ret(lhs);
+  friend inline constexpr flags<T> operator|(flags<T> const &lhs,
+                                             flags<T> const &rhs) {
+    flags<T> ret(lhs);
     ret |= rhs;
     return ret;
   }
 
-  friend bool operator==(const bitfield &lhs, const bitfield &rhs) {
+  friend bool operator==(const flags &lhs, const flags &rhs) {
     return lhs.value_ == rhs.value_;
   }
 
@@ -125,12 +88,43 @@ class bitfield {
 template <typename T, typename Tag>
 struct enum_struct {
  public:
-  enum_struct() = default;
-
   using our_type = Tag;
   using field_type = T;
   using name_type = std::pair<T, const char *>;
 
+ public:
+  class forward_iterator {
+   public:
+    constexpr explicit forward_iterator() : i_(0) {}
+    explicit forward_iterator(int i) : i_(i) {}
+    explicit forward_iterator(Tag &v) : i_(0) {
+      while (i_ < our_type::names.size()) {
+        if (our_type::names[i_].first == v.v) {
+          break;
+        }
+      }
+    }
+
+    Tag operator*() const { return Tag{our_type::names[i_].first}; }
+
+    void operator++() { ++i_; }
+
+    bool operator!=(forward_iterator rhs) { return i_ != rhs.i_; }
+
+   private:
+    int i_;
+  };
+
+  friend forward_iterator begin(enum_struct /*unused*/) {
+    return forward_iterator();
+  }
+
+  friend forward_iterator end(enum_struct /*unused*/) {
+    return forward_iterator(our_type::names.size());
+  }
+
+ public:
+  constexpr enum_struct() = default;
   template <typename Ta>
   explicit constexpr enum_struct(Ta v) : v(static_cast<T>(v)) {}
 
@@ -195,18 +189,21 @@ struct enum_struct {
   }
 };
 
+/**
+ * Flags based on an enum.
+ */
 template <typename T, typename Tag>
-class enum_bitfield {
+class flags_struct {
  public:
   using field_type = typename T::field_type;
 
-  enum_bitfield() = default;
-  enum_bitfield(std::initializer_list<T> l) {
+  flags_struct() = default;
+  flags_struct(std::initializer_list<T> l) {
     for (auto b : l) {
       v |= b.v;
     }
   }
-  explicit enum_bitfield(field_type value) : v(value) {}
+  explicit flags_struct(field_type value) : v(value) {}
 
   bool empty() const { return v == 0; }
 

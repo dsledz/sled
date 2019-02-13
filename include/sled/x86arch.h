@@ -34,9 +34,9 @@ constexpr CPUID7_EBX_FEATURE const CPUID7_EBX_FEATURE::AVX512f{1 << 16};
 constexpr CPUID7_EBX_FEATURE const CPUID7_EBX_FEATURE::SHA{1 << 29};
 
 struct CPUID7_EBX_FEATURES
-    : public sled::enum_bitfield<CPUID7_EBX_FEATURE, CPUID7_EBX_FEATURES> {
-  using sled::enum_bitfield<CPUID7_EBX_FEATURE,
-                            CPUID7_EBX_FEATURES>::enum_bitfield;
+    : public sled::flags_struct<CPUID7_EBX_FEATURE, CPUID7_EBX_FEATURES> {
+  using sled::flags_struct<CPUID7_EBX_FEATURE,
+                           CPUID7_EBX_FEATURES>::flags_struct;
 };
 
 template <int arg, typename EAX_RETURN = uint32_t,

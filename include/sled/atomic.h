@@ -13,20 +13,20 @@
 namespace sled {
 
 template <typename T>
-class atomic_bitfield {
+class atomic_flags {
  public:
   using field_type = typename std::underlying_type<T>::type;
-  using nonatomic_type = sled::bitfield<T>;
+  using nonatomic_type = sled::flags<T>;
 
-  atomic_bitfield() = default;
-  atomic_bitfield(std::initializer_list<T> l) {
+  atomic_flags() = default;
+  atomic_flags(std::initializer_list<T> l) {
     field_type value{};
     for (auto b : l) {
       value |= static_cast<field_type>(b);
     }
     value_ = value;
   }
-  explicit atomic_bitfield(field_type value) : value_(value) {}
+  explicit atomic_flags(field_type value) : value_(value) {}
 
   bool empty() const { return value_ == 0; }
 
@@ -71,44 +71,44 @@ class atomic_bitfield {
     return std::atomic_compare_exchange_strong(&value_, &old_v, new_v);
   }
 
-  atomic_bitfield<T>& operator|=(const atomic_bitfield<T>& rhs) {
+  atomic_flags<T>& operator|=(const atomic_flags<T>& rhs) {
     value_ |= rhs.value_;
     return *this;
   }
 
-  atomic_bitfield<T>& operator|=(const T& rhs) {
+  atomic_flags<T>& operator|=(const T& rhs) {
     value_ |= static_cast<field_type>(rhs);
     return *this;
   }
 
-  atomic_bitfield<T>& operator&=(const atomic_bitfield<T>& rhs) {
+  atomic_flags<T>& operator&=(const atomic_flags<T>& rhs) {
     value_ &= rhs.value_;
     return *this;
   }
 
-  atomic_bitfield<T>& operator&=(const T& rhs) {
+  atomic_flags<T>& operator&=(const T& rhs) {
     value_ |= static_cast<field_type>(rhs);
     return *this;
   }
 
-  atomic_bitfield<T> operator~() { return ~value_.load(); }
+  atomic_flags<T> operator~() { return ~value_.load(); }
 
-  friend nonatomic_type operator|(atomic_bitfield const& lhs,
-                                  atomic_bitfield<T> const& rhs) {
+  friend nonatomic_type operator|(atomic_flags const& lhs,
+                                  atomic_flags<T> const& rhs) {
     return nonatomic_type{lhs.value_.load() | rhs.value_.load()};
   }
 
-  friend nonatomic_type operator|(atomic_bitfield const& lhs,
+  friend nonatomic_type operator|(atomic_flags const& lhs,
                                   nonatomic_type const& rhs) {
     return nonatomic_type{lhs.value_.load() | rhs.get()};
   }
 
   friend nonatomic_type operator|(nonatomic_type const& lhs,
-                                  atomic_bitfield<T> const& rhs) {
+                                  atomic_flags<T> const& rhs) {
     return nonatomic_type{lhs.get() | rhs.value_.load()};
   }
 
-  friend bool operator==(atomic_bitfield const& lhs, atomic_bitfield const& rhs) {
+  friend bool operator==(atomic_flags const& lhs, atomic_flags const& rhs) {
     return lhs.value_ == rhs.value_;
   }
 

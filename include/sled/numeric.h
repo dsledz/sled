@@ -167,7 +167,7 @@ class Hex {
  */
 class AltHex {
  public:
-  using Flags = bitfield<HexFormat>;
+  using Flags = sled::flags<HexFormat>;
   template <typename T,
             class = typename std::enable_if<is_wrapped_integer<T>::value>::type>
   explicit constexpr AltHex(T arg, Flags flags = Flags{}, T /*unused*/ = {})

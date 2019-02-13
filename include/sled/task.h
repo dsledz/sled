@@ -28,7 +28,7 @@ enum class TaskFlag {
   Suspended = 0x20, /**< Suspended */
 };
 
-using TaskFlags = bitfield<TaskFlag>;
+using TaskFlags = sled::flags<TaskFlag>;
 
 /**
  * Task identifier.
