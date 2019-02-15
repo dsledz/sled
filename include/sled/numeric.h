@@ -75,7 +75,9 @@ class Integer {
   int w;
 
   friend inline std::ostream &operator<<(std::ostream &os, Integer const &obj) {
+    auto f = os.flags();
     os << std::dec << obj.v;
+    os.flags(f);
     return os;
   }
 
@@ -138,11 +140,13 @@ class Hex {
   constexpr bool operator!=(Hex const &rhs) { return v == rhs.v; }
 
   friend inline std::ostream &operator<<(std::ostream &os, Hex const &obj) {
+    auto f = os.flags();
     if (obj.flags == 0) {
       os << "0x";
     }
     os << std::hex << std::setfill('0') << std::right << std::setw(obj.w)
        << obj.v << std::dec;
+    os.flags(f);
     return os;
   }
 
@@ -190,6 +194,7 @@ class AltHex {
   Flags flags{};
 
   friend inline std::ostream &operator<<(std::ostream &os, AltHex const &obj) {
+    auto f = os.flags();
     if (obj.flags.is_clear(HexFormat::NoPrefix)) {
       os << "$";
     }
@@ -198,6 +203,7 @@ class AltHex {
       os << std::setw(obj.w);
     }
     os << std::hex << std::uppercase << std::right << obj.v;
+    os.flags(f);
     return os;
   }
 

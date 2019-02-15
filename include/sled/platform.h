@@ -36,6 +36,7 @@
 #define a_used __attribute__((used))
 #define a_unused __attribute((unused))
 #define a_const __attribute__((const))
+#define a_pure __attribute__((pure))
 #define a_forceinline __attribute__((always_inline)) inline
 #define a_noinline __attribute__((noinline))
 #define likely(x) __builtin_expect(!!(x), 1)

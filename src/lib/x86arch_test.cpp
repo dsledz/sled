@@ -14,7 +14,17 @@ class X86ArchTest : public ::testing::Test {
   X86ArchTest() = default;
 };
 
-TEST_F(X86ArchTest, cpuid) {
+TEST_F(X86ArchTest, cpuid1) {
+  sled::x86::CPUID1 cpuid;
+
+  auto ecx = cpuid.ecx();
+  EXPECT_TRUE(ecx.is_set(sled::x86::CPUID1_ECX_FEATURE::AVX));
+
+  auto edx = cpuid.edx();
+  EXPECT_TRUE(edx.is_set(sled::x86::CPUID1_EDX_FEATURE::SSE2));
+}
+
+TEST_F(X86ArchTest, cpuid7) {
   sled::x86::CPUID7 cpuid;
 
   auto ebx = cpuid.ebx();

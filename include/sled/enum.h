@@ -167,7 +167,7 @@ struct enum_struct {
         return os;
       }
     }
-    os << "Invalid<" << e.v << ">";
+    os << "Invalid<" << (int)e.v << ">";
     return os;
   }
 

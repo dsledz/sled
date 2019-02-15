@@ -37,11 +37,11 @@ void LoggingManager::increase_threshold() {
     case sled::log::Severity::Debug:
       threshold_sev_ = sled::log::Severity::Trace;
       break;
-    case sled::log::Severity::Informational:
+    case sled::log::Severity::Info:
       threshold_sev_ = sled::log::Severity::Debug;
       break;
     case sled::log::Severity::Notice:
-      threshold_sev_ = sled::log::Severity::Informational;
+      threshold_sev_ = sled::log::Severity::Info;
       break;
     case sled::log::Severity::Warning:
       threshold_sev_ = sled::log::Severity::Notice;
@@ -66,9 +66,9 @@ void LoggingManager::decrease_threshold() {
       threshold_sev_ = sled::log::Severity::Debug;
       break;
     case sled::log::Severity::Debug:
-      threshold_sev_ = sled::log::Severity::Informational;
+      threshold_sev_ = sled::log::Severity::Info;
       break;
-    case sled::log::Severity::Informational:
+    case sled::log::Severity::Info:
       threshold_sev_ = sled::log::Severity::Notice;
       break;
     case sled::log::Severity::Notice:

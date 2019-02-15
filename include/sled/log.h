@@ -26,7 +26,7 @@ namespace sled::log {
 struct Severity : enum_struct<uint32_t, Severity> {
   static Severity const Trace;
   static Severity const Debug;
-  static Severity const Informational;
+  static Severity const Info;
   static Severity const Notice;
   static Severity const Warning;
   static Severity const Error;
@@ -35,10 +35,10 @@ struct Severity : enum_struct<uint32_t, Severity> {
   static Severity const Inherited;
 
   static constexpr std::array<name_type, 9> names{
-      std::make_pair(0, "Trace"),         std::make_pair(1, "Debug"),
-      std::make_pair(2, "Informational"), std::make_pair(3, "Notice"),
-      std::make_pair(4, "Warning"),       std::make_pair(5, "Error"),
-      std::make_pair(6, "Critical"),      std::make_pair(7, "Fatal"),
+      std::make_pair(0, "Trace"),    std::make_pair(1, "Debug"),
+      std::make_pair(2, "Info"),     std::make_pair(3, "Notice"),
+      std::make_pair(4, "Warning"),  std::make_pair(5, "Error"),
+      std::make_pair(6, "Critical"), std::make_pair(7, "Fatal"),
       std::make_pair(8, "Inherited")};
 
   using enum_struct<uint32_t, Severity>::enum_struct;
@@ -46,7 +46,7 @@ struct Severity : enum_struct<uint32_t, Severity> {
 
 constexpr Severity const Severity::Trace{0};
 constexpr Severity const Severity::Debug{1};
-constexpr Severity const Severity::Informational{2};
+constexpr Severity const Severity::Info{2};
 constexpr Severity const Severity::Notice{3};
 constexpr Severity const Severity::Warning{4};
 constexpr Severity const Severity::Error{5};
