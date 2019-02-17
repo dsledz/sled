@@ -6,19 +6,31 @@
 #pragma once
 
 #include <stdint.h>
-#include <x86intrin.h>
+#include <array>
 #include <cassert>
+#include <cctype>
 #include <cstdint>
 #include <cstring>
-#include <string>
-#include <type_traits>
-#include <utility>
-#include <thread>
-#include <vector>
-#include <map>
-#include <unordered_map>
 #include <functional>
+#include <map>
+#include <optional>
+#include <ostream>
+#include <string>
+#include <thread>
+#include <type_traits>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
+#ifndef WIN32
+#include <x86intrin.h>
+#else
+#include <immintrin.h>
+#include <intrin.h>
+#include <nmmintrin.h>
+#include <windows.h>
+#define __builtin_popcount __popcnt
+#endif
 #include "sled/opts.h"
 
 #ifdef WIN32
@@ -27,6 +39,7 @@
 #define a_const
 #define a_forceinline __forceinline
 #define a_noinline
+#define a_pure
 #define likely(x) x
 #define unlikely(x) x
 #define __builtin_bswap64 _byteswap_uint64
@@ -48,6 +61,38 @@
 #include <cstddef>
 static_assert(alignof(std::max_align_t) == 16, "Unsupported alignment");
 #endif
+
+/* Meta-programing helpers*/
+namespace sled::mp {
+
+template <typename T1>
+struct not_ : public std::integral_constant<bool, !bool(T1::value)> {};
+
+template <typename...>
+struct and_;
+
+template <>
+struct and_<> : public std::true_type {};
+
+template <typename T1>
+struct and_<T1> : public T1 {};
+
+template <typename T1, typename T2>
+struct and_<T1, T2> : public std::conditional<T1::value, T2, T1>::type {};
+
+template <typename...>
+struct or_;
+
+template <>
+struct or_<> : public std::false_type {};
+
+template <typename T1>
+struct or_<T1> : public T1 {};
+
+template <typename T1, typename T2>
+struct or_<T1, T2> : public std::conditional<T1::value, T1, T2>::type {};
+
+}  // namespace sled::mp
 
 namespace sled {
 
@@ -157,10 +202,8 @@ static inline std::string demangle(const std::type_info &ti) {
 
 namespace sled {
 
-template <typename T, typename B,
-          class = typename std::enable_if_t<
-              std::__and_<std::true_type /*std::is_trivially_copyable<T> */,
-                          std::is_trivially_copyable<B>>::value>>
+#ifdef WIN32
+template <typename T, typename B>
 T *safe_cast(B *b) {
   std::aligned_storage<sizeof(T), alignof(T)> s;
   std::memcpy(&s, b, sizeof(T));
@@ -168,5 +211,18 @@ T *safe_cast(B *b) {
   std::memcpy(f, &s, sizeof(T));
   return f;
 }
+#else
+template <typename T, typename B,
+          class = typename std::enable_if_t<
+              std::__and_<std::true_type /*std::is_trivially_copyable<T> */,
+                          std::is_trivially_copyable<B> >::value> >
+T *safe_cast(B *b) {
+  std::aligned_storage<sizeof(T), alignof(T)> s;
+  std::memcpy(&s, b, sizeof(T));
+  auto f = new (b) T;
+  std::memcpy(f, &s, sizeof(T));
+  return f;
+}
+#endif
 
 }  // namespace sled

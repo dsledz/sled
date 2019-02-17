@@ -18,19 +18,19 @@ TEST_F(X86ArchTest, cpuid1) {
   sled::x86::CPUID1 cpuid;
 
   auto ecx = cpuid.ecx();
-  EXPECT_TRUE(ecx.is_set(sled::x86::CPUID1_ECX_FEATURE::AVX));
+  EXPECT_TRUE(ecx.is_set(sled::x86::CPUID1_ECX_FEATURE::V::AVX));
 
   auto edx = cpuid.edx();
-  EXPECT_TRUE(edx.is_set(sled::x86::CPUID1_EDX_FEATURE::SSE2));
+  EXPECT_TRUE(edx.is_set(sled::x86::CPUID1_EDX_FEATURE::V::SSE2));
 }
 
 TEST_F(X86ArchTest, cpuid7) {
   sled::x86::CPUID7 cpuid;
 
   auto ebx = cpuid.ebx();
-  EXPECT_TRUE(ebx.is_set(sled::x86::CPUID7_EBX_FEATURE::BMI2));
-  EXPECT_TRUE(ebx.is_set(sled::x86::CPUID7_EBX_FEATURE::AVX2));
-  EXPECT_TRUE(ebx.is_set(sled::x86::CPUID7_EBX_FEATURE::AVX512f));
+  EXPECT_TRUE(ebx.is_set(sled::x86::CPUID7_EBX_FEATURE::V::BMI2));
+  EXPECT_TRUE(ebx.is_set(sled::x86::CPUID7_EBX_FEATURE::V::AVX2));
+  EXPECT_TRUE(ebx.is_set(sled::x86::CPUID7_EBX_FEATURE::V::AVX512f));
 }
 
 /**

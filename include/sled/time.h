@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2018, Dan Sledz
- * All rights reserved.
  * Licensed under BSD-2-Clause license.
  */
 #pragma once
@@ -119,11 +118,11 @@ struct time final : public StrongInt<int64_t, time> {
 
   constexpr inline time operator/(int rhs) noexcept { return time{v / rhs}; }
 
-  static time const zero;
 };
 
-constexpr time const time::zero{nsec{0}};
+static constexpr time time_zero{nsec{0}};
 
+#ifndef WIN32
 static inline void timespec_diff(struct timespec *dest, struct timespec first,
                                  struct timespec second) {
   if (second.tv_nsec < first.tv_nsec) {
@@ -205,5 +204,56 @@ class stopwatch {
   struct timespec start_ {};
   struct timespec pause_ {};
 };
+
+#else
+
+class stopwatch {
+ public:
+  stopwatch() {
+    QueryPerformanceFrequency(&frequency_);
+    reset();
+  }
+  ~stopwatch() = default;
+  void reset() {
+    QueryPerformanceCounter(&start_);
+    clock_ = start_;
+  }
+  void pause() { QueryPerformanceCounter(&pause_); }
+  void resume() {
+    LARGE_INTEGER now;
+    QueryPerformanceCounter(&now);
+    start_.QuadPart = now.QuadPart - pause_.QuadPart;
+    pause_.QuadPart = 0;
+  }
+  time current() {
+    LARGE_INTEGER now;
+    QueryPerformanceCounter(&now);
+    LARGE_INTEGER runtime;
+    runtime.QuadPart = now.QuadPart - start_.QuadPart;
+
+    return {nsec{runtime.QuadPart}};
+  }
+  time split() {
+    LARGE_INTEGER now;
+    LARGE_INTEGER split;
+    QueryPerformanceCounter(&now);
+    split.QuadPart = now.QuadPart - clock_.QuadPart;
+    clock_ = now;
+
+    return {nsec{split.QuadPart}};
+  }
+  static time now() {
+    LARGE_INTEGER now;
+    QueryPerformanceCounter(&now);
+    return {nsec{now.QuadPart}};
+  }
+
+ private:
+  LARGE_INTEGER clock_{};
+  LARGE_INTEGER start_{};
+  LARGE_INTEGER pause_{};
+  LARGE_INTEGER frequency_{};
+};
+#endif
 
 }  // namespace sled

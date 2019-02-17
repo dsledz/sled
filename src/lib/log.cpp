@@ -15,10 +15,10 @@ void sink_msg(std::ostream &sink, message &msg) {
 }
 
 LoggingManager::LoggingManager(Sink default_sink)
-    : threshold_sev_(Severity::Notice),
-      default_sev_(Severity::Notice),
+    : threshold_sev_(Severity::V::Notice),
+      default_sev_(Severity::V::Notice),
       default_sink_(default_sink),
-      last_facility_(Facility::User3.v) {}
+      last_facility_(Facility::V::User3.v) {}
 
 LoggingManager::~LoggingManager() = default;
 
@@ -30,60 +30,60 @@ void LoggingManager::set_default_sink(Sink sink) { default_sink_ = sink; }
 
 void LoggingManager::increase_threshold() {
   switch (threshold_sev_) {
-    case sled::log::Severity::Inherited:
+    case sled::log::Severity::V::Inherited:
       break;
-    case sled::log::Severity::Trace:
+    case sled::log::Severity::V::Trace:
       break;
-    case sled::log::Severity::Debug:
-      threshold_sev_ = sled::log::Severity::Trace;
+    case sled::log::Severity::V::Debug:
+      threshold_sev_ = sled::log::Severity::V::Trace;
       break;
-    case sled::log::Severity::Info:
-      threshold_sev_ = sled::log::Severity::Debug;
+    case sled::log::Severity::V::Info:
+      threshold_sev_ = sled::log::Severity::V::Debug;
       break;
-    case sled::log::Severity::Notice:
-      threshold_sev_ = sled::log::Severity::Info;
+    case sled::log::Severity::V::Notice:
+      threshold_sev_ = sled::log::Severity::V::Info;
       break;
-    case sled::log::Severity::Warning:
-      threshold_sev_ = sled::log::Severity::Notice;
+    case sled::log::Severity::V::Warning:
+      threshold_sev_ = sled::log::Severity::V::Notice;
       break;
-    case sled::log::Severity::Error:
-      threshold_sev_ = sled::log::Severity::Warning;
+    case sled::log::Severity::V::Error:
+      threshold_sev_ = sled::log::Severity::V::Warning;
       break;
-    case sled::log::Severity::Critical:
-      threshold_sev_ = sled::log::Severity::Error;
+    case sled::log::Severity::V::Critical:
+      threshold_sev_ = sled::log::Severity::V::Error;
       break;
-    case sled::log::Severity::Fatal:
-      threshold_sev_ = sled::log::Severity::Critical;
+    case sled::log::Severity::V::Fatal:
+      threshold_sev_ = sled::log::Severity::V::Critical;
       break;
   }
 }
 
 void LoggingManager::decrease_threshold() {
   switch (threshold_sev_) {
-    case sled::log::Severity::Inherited:
+    case sled::log::Severity::V::Inherited:
       break;
-    case sled::log::Severity::Trace:
-      threshold_sev_ = sled::log::Severity::Debug;
+    case sled::log::Severity::V::Trace:
+      threshold_sev_ = sled::log::Severity::V::Debug;
       break;
-    case sled::log::Severity::Debug:
-      threshold_sev_ = sled::log::Severity::Info;
+    case sled::log::Severity::V::Debug:
+      threshold_sev_ = sled::log::Severity::V::Info;
       break;
-    case sled::log::Severity::Info:
-      threshold_sev_ = sled::log::Severity::Notice;
+    case sled::log::Severity::V::Info:
+      threshold_sev_ = sled::log::Severity::V::Notice;
       break;
-    case sled::log::Severity::Notice:
-      threshold_sev_ = sled::log::Severity::Warning;
+    case sled::log::Severity::V::Notice:
+      threshold_sev_ = sled::log::Severity::V::Warning;
       break;
-    case sled::log::Severity::Warning:
-      threshold_sev_ = sled::log::Severity::Error;
+    case sled::log::Severity::V::Warning:
+      threshold_sev_ = sled::log::Severity::V::Error;
       break;
-    case sled::log::Severity::Error:
-      threshold_sev_ = sled::log::Severity::Critical;
+    case sled::log::Severity::V::Error:
+      threshold_sev_ = sled::log::Severity::V::Critical;
       break;
-    case sled::log::Severity::Critical:
-      threshold_sev_ = sled::log::Severity::Fatal;
+    case sled::log::Severity::V::Critical:
+      threshold_sev_ = sled::log::Severity::V::Fatal;
       break;
-    case sled::log::Severity::Fatal:
+    case sled::log::Severity::V::Fatal:
       break;
   }
 }

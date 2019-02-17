@@ -34,6 +34,7 @@ TEST_F(MockedFutureTest, mock_execute_async) {
   EXPECT_EQ(5, f1->get().value());
 }
 
+#ifndef WIN32
 template <typename executor_t, typename Fn>
 struct task_wrapper {
   task_wrapper(executor_t *exec_ctx, Fn &&fn)
@@ -48,6 +49,7 @@ TEST_F(MockedFutureTest, wrapped_execute_async) {
   EXPECT_TRUE(f1->valid());
   EXPECT_EQ(5, f1->get().value());
 }
+#endif
 
 TEST_F(MockedFutureTest, get_valid) {
   future_t<int> f1{};
@@ -111,6 +113,7 @@ struct non_moveable {
   uint64_t b{0};
 };
 
+#ifndef WIN32
 TEST_F(MockedFutureTest, non_moveable) {
   future_t<non_moveable> f1{};
   f1.set_result(non_moveable{1, 2});
@@ -118,6 +121,7 @@ TEST_F(MockedFutureTest, non_moveable) {
   non_moveable actual{f1.wait()};
   EXPECT_EQ(expected, actual);
 }
+#endif
 
 TEST_F(MockedFutureTest, void_return) {
   future_t<void> f1{};

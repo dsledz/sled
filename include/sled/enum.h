@@ -9,9 +9,6 @@
 #include "sled/platform.h"
 #include "sled/string.h"
 
-#include <ostream>
-#include <type_traits>
-
 namespace sled {
 
 /**
@@ -22,13 +19,13 @@ class flags {
  public:
   using field_type = typename std::underlying_type<T>::type;
 
-  flags() = default;
-  flags(std::initializer_list<T> l) {
+  constexpr flags() = default;
+  constexpr flags(std::initializer_list<T> l) {
     for (auto b : l) {
       value_ |= static_cast<field_type>(b);
     }
   }
-  explicit flags(field_type value) : value_(value) {}
+  explicit constexpr flags(field_type value) : value_(value) {}
 
   bool empty() const { return value_ == 0; }
 
@@ -120,7 +117,7 @@ struct enum_struct {
   }
 
   friend forward_iterator end(enum_struct /*unused*/) {
-    return forward_iterator(our_type::names.size());
+    return forward_iterator(static_cast<T>(our_type::names.size()));
   }
 
  public:
@@ -132,19 +129,23 @@ struct enum_struct {
 
   constexpr operator T() const noexcept { return v; }
 
+#if 0
   a_forceinline constexpr explicit operator bool() const noexcept {
     return v != 0;
   }
+#endif
 
-  a_forceinline constexpr bool operator>(enum_struct const &rhs) const noexcept {
-    return v > rhs.v;
+  a_forceinline friend constexpr bool operator>(
+      enum_struct const &lhs, enum_struct const &rhs) noexcept {
+    return lhs.v > rhs.v;
   }
   a_forceinline constexpr bool operator>=(enum_struct const &rhs) const
       noexcept {
     return v >= rhs.v;
   }
-  a_forceinline constexpr bool operator<(enum_struct const &rhs) const noexcept {
-    return v < rhs.v;
+  a_forceinline friend constexpr bool operator<(
+      enum_struct const &lhs, enum_struct const &rhs) noexcept {
+    return lhs.v < rhs.v;
   }
   a_forceinline constexpr bool operator<=(enum_struct const &rhs) const
       noexcept {
@@ -197,13 +198,13 @@ class flags_struct {
  public:
   using field_type = typename T::field_type;
 
-  flags_struct() = default;
-  flags_struct(std::initializer_list<T> l) {
+  constexpr flags_struct() = default;
+  constexpr flags_struct(std::initializer_list<T> l) {
     for (auto b : l) {
       v |= b.v;
     }
   }
-  explicit flags_struct(field_type value) : v(value) {}
+  explicit constexpr flags_struct(field_type value) : v(value) {}
 
   bool empty() const { return v == 0; }
 

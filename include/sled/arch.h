@@ -29,7 +29,7 @@ struct hwarch {
 struct avx2_hwarch : public hwarch {
   static bool available() {
     sled::x86::CPUID7 cpuid;
-    return cpuid.ebx().is_set(sled::x86::CPUID7_EBX_FEATURE::AVX2);
+    return cpuid.ebx().is_set(sled::x86::CPUID7_EBX_FEATURE::V::AVX2);
   }
 };
 
@@ -39,7 +39,7 @@ struct avx2_hwarch : public hwarch {
 struct avx512_hwarch : public avx2_hwarch {
   static bool available() {
     sled::x86::CPUID7 cpuid;
-    return cpuid.ebx().is_set(sled::x86::CPUID7_EBX_FEATURE::AVX512f);
+    return cpuid.ebx().is_set(sled::x86::CPUID7_EBX_FEATURE::V::AVX512f);
   }
 };
 #else

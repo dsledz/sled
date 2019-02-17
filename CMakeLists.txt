@@ -22,10 +22,17 @@ set(SLED_X86_64 1 CACHE STRING "Targeting x86-64 Architecture")
 #set_directory_properties(PROPERTIES COTIRE_PREFIX_HEADER_INCLUDE_PATH "${COTIRE_PREFIX_HEADER_INCLUDE_PATH}; ${CMAKE_SOURCE_DIR}/3rdparty")
 #set_directory_properties(PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 
-# Build specific flags
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fstrict-vtable-pointers")
+if (WIN32)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHs -DNOMINMAX")
+else (WIN32)
+    # Build specific flags
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fstrict-vtable-pointers")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -Wall -Werror -g -Wno-unused-private-field -Wuninitialized -O0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.2")
+endif (WIN32)
 
 #
 # Build Options
@@ -60,10 +67,6 @@ function(add_unit_test)
         set_target_properties(${PARSED_ARGS_NAME} PROPERTIES FOLDER Tests)
     endif (SLED_BUILD_UNIT_TESTS)
 endfunction(add_unit_test)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -Wall -Werror -g -Wno-unused-private-field -Wuninitialized -O0")
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.2")
 
 set(REBUILD_3RDPARTY ON CACHE BOOL "")
 

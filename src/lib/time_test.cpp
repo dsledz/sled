@@ -75,7 +75,7 @@ TEST_F(TimeTest, formatter) {
 TEST_F(TimeTest, sw) {
   sled::stopwatch sw;
 
-  auto t0 = sled::time::zero;
+  auto t0 = sled::time_zero;
   auto t1 = sw.split();
   EXPECT_GT(t1, t0);
 }

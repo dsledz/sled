@@ -21,8 +21,7 @@ struct crc32c : public StrongInt<uint32_t, crc32c> {
 /**
  * Compute the CRC32C value for the vector
  */
-template <typename T,
-          class = typename std::enable_if_t<std::is_integral<T>::value>>
+template <typename T, class = typename std::enable_if_t<std::is_integral_v<T>>>
 static inline crc32c calculate_crc32c(std::vector<T> const &data,
                                       crc32c initial = crc32c{0}) {
   auto crc{initial.get()};

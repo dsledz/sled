@@ -152,6 +152,7 @@ class ExecTask : public task_type_t<Fn> {
   ExecTask(executor_t *exec_ctx, Fn closure)
       : task_type_t<Fn>(), exec_ctx_(exec_ctx), closure_(closure) {}
   ExecTask(ExecTask const &) = delete;
+  ExecTask(ExecTask &&rhs) = default;
 
   void run() final {
     if constexpr (std::is_same<void, result_t>::value) {

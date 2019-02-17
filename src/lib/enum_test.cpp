@@ -15,26 +15,25 @@ class EnumTest : public ::testing::Test {
 
 struct TestEnum final : sled::enum_struct<uint32_t, TestEnum> {
  public:
-  static TestEnum const Value0;
-  static TestEnum const Value1;
-  static TestEnum const Value2;
-  static TestEnum const Value3;
-
   static constexpr std::array<name_type, 4> names{
       std::make_pair(0, "Value0"), std::make_pair(1, "Value1"),
       std::make_pair(2, "Value2"), std::make_pair(3, "Value3")};
 
   using sled::enum_struct<uint32_t, TestEnum>::enum_struct;
+
+  struct V;
 };
 
-constexpr TestEnum const TestEnum::Value0{0};
-constexpr TestEnum const TestEnum::Value1{1};
-constexpr TestEnum const TestEnum::Value2{2};
-constexpr TestEnum const TestEnum::Value3{3};
+struct TestEnum::V {
+  static constexpr TestEnum Value0{0};
+  static constexpr TestEnum Value1{1};
+  static constexpr TestEnum Value2{2};
+  static constexpr TestEnum Value3{3};
+};
 
 TEST_F(EnumTest, named_enum) {
   std::stringstream ss;
-  TestEnum te{TestEnum::Value0};
+  TestEnum te{TestEnum::V::Value0};
 
   ss << te;
 
@@ -43,7 +42,7 @@ TEST_F(EnumTest, named_enum) {
 
 TEST_F(EnumTest, string_to_enum) {
   auto te = TestEnum::from_string("Value0");
-  EXPECT_EQ(te, TestEnum::Value0);
+  EXPECT_EQ(te, TestEnum::V::Value0);
 
   EXPECT_THROW(TestEnum::from_string("Invalid"), sled::ConversionError);
 }
@@ -58,20 +57,20 @@ TEST_F(EnumTest, unknown_enum) {
 }
 
 TEST_F(EnumTest, switch_statement) {
-  auto te = TestEnum::Value0;
+  auto te = TestEnum::V::Value0;
   int v = -1;
 
   switch (te) {
-    case TestEnum::Value0:
+    case TestEnum::V::Value0:
       v = 0;
       break;
-    case TestEnum::Value1:
+    case TestEnum::V::Value1:
       v = 1;
       break;
-    case TestEnum::Value2:
+    case TestEnum::V::Value2:
       v = 2;
       break;
-    case TestEnum::Value3:
+    case TestEnum::V::Value3:
       v = 3;
       break;
   };

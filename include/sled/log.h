@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include <array>
 #include <atomic>
 #include <iomanip>
 #include <sstream>
@@ -24,16 +25,6 @@ namespace sled::log {
  * be logged.
  */
 struct Severity : enum_struct<uint32_t, Severity> {
-  static Severity const Trace;
-  static Severity const Debug;
-  static Severity const Info;
-  static Severity const Notice;
-  static Severity const Warning;
-  static Severity const Error;
-  static Severity const Critical;
-  static Severity const Fatal;
-  static Severity const Inherited;
-
   static constexpr std::array<name_type, 9> names{
       std::make_pair(0, "Trace"),    std::make_pair(1, "Debug"),
       std::make_pair(2, "Info"),     std::make_pair(3, "Notice"),
@@ -41,18 +32,22 @@ struct Severity : enum_struct<uint32_t, Severity> {
       std::make_pair(6, "Critical"), std::make_pair(7, "Fatal"),
       std::make_pair(8, "Inherited")};
 
-  using enum_struct<uint32_t, Severity>::enum_struct;
+  using enum_struct::enum_struct;
+
+  struct V;
 };
 
-constexpr Severity const Severity::Trace{0};
-constexpr Severity const Severity::Debug{1};
-constexpr Severity const Severity::Info{2};
-constexpr Severity const Severity::Notice{3};
-constexpr Severity const Severity::Warning{4};
-constexpr Severity const Severity::Error{5};
-constexpr Severity const Severity::Critical{6};
-constexpr Severity const Severity::Fatal{7};
-constexpr Severity const Severity::Inherited{8};
+struct Severity::V {
+  static constexpr Severity Trace{0};
+  static constexpr Severity Debug{1};
+  static constexpr Severity Info{2};
+  static constexpr Severity Notice{3};
+  static constexpr Severity Warning{4};
+  static constexpr Severity Error{5};
+  static constexpr Severity Critical{6};
+  static constexpr Severity Fatal{7};
+  static constexpr Severity Inherited{8};
+};
 
 /**
  * Facility.
@@ -61,15 +56,6 @@ constexpr Severity const Severity::Inherited{8};
  */
 struct Facility : enum_struct<uint32_t, Facility> {
  public:
-  static Facility const None;
-  static Facility const Util;
-  static Facility const Exec;
-  static Facility const Perf;
-  static Facility const Test;
-  static Facility const User1;
-  static Facility const User2;
-  static Facility const User3;
-
   static constexpr std::array<name_type, 8> names{
       std::make_pair(0, "None"),  std::make_pair(1, "Util"),
       std::make_pair(2, "Exec"),  std::make_pair(3, "Perf"),
@@ -77,16 +63,20 @@ struct Facility : enum_struct<uint32_t, Facility> {
       std::make_pair(6, "User2"), std::make_pair(7, "User3")};
 
   using enum_struct<uint32_t, Facility>::enum_struct;
+
+  struct V;
 };
 
-constexpr Facility const Facility::None{0};
-constexpr Facility const Facility::Util{1};
-constexpr Facility const Facility::Exec{2};
-constexpr Facility const Facility::Perf{3};
-constexpr Facility const Facility::Test{4};
-constexpr Facility const Facility::User1{5};
-constexpr Facility const Facility::User2{6};
-constexpr Facility const Facility::User3{7};
+struct Facility::V {
+  static constexpr Facility None{0};
+  static constexpr Facility Util{1};
+  static constexpr Facility Exec{2};
+  static constexpr Facility Perf{3};
+  static constexpr Facility Test{4};
+  static constexpr Facility User1{5};
+  static constexpr Facility User2{6};
+  static constexpr Facility User3{7};
+};
 
 struct tsc_t : StrongInt<uint64_t, tsc_t> {
   using StrongInt<uint64_t, tsc_t>::StrongInt;
@@ -183,7 +173,7 @@ void sink_msg(std::ostream &sink, message &msg);
 class Sink {
  public:
   template <typename T, typename = std::enable_if_t<
-                            std::__not_<std::is_same<T, Sink>>::value>>
+                            sled::mp::not_<std::is_same<T, Sink>>::value>>
   Sink(T &x) : sink_(std::make_unique<model<T>>(x)) {}
 
   Sink(const Sink &x) : sink_(x.sink_->copy_()) {}
