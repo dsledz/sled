@@ -56,3 +56,21 @@ TEST_F(NumericTest, alt_hex_tests) {
 
   EXPECT_EQ("$00000064", to_string(n1));
 }
+
+TEST_F(NumericTest, MiB_tests) {
+  auto mib_test = [](std::string const &lhs, uint64_t rhs) {
+    auto v = sled::AltInteger(rhs, {sled::IntegerFormat::MiB});
+    EXPECT_EQ(lhs, to_string(v));
+  };
+  mib_test("1MiB", 1024 * 1024);
+  mib_test("1.0MiB", 1024 * 1024 + 1);
+}
+
+TEST_F(NumericTest, KiB_tests) {
+  auto kib_test = [](std::string const &lhs, uint64_t rhs) {
+    auto v = sled::AltInteger(rhs, {sled::IntegerFormat::KiB});
+    EXPECT_EQ(lhs, to_string(v));
+  };
+  kib_test("1KiB", 1024);
+  kib_test("1.0KiB", 1024 + 1);
+}

@@ -105,6 +105,83 @@ inline T from_integer(const Integer &integer) {
 }
 
 /**
+ * Integer Integer formatting flags.
+ */
+enum class IntegerFormat {
+  KiB = 0x01,
+  MiB = 0x02,
+};
+
+/**
+ * Alternative representation of a hex number, e.g. $BEEF.
+ */
+class AltInteger {
+ public:
+  using Flags = sled::flags<IntegerFormat>;
+  template <typename T,
+            class = typename std::enable_if<is_wrapped_integer<T>::value>::type>
+  explicit constexpr AltInteger(T arg, Flags flags = Flags{}, T /*unused*/ = {})
+      : v(arg.v), w(wrapped_integer_width(arg)), flags{flags} {}
+  template <typename I,
+            class = typename std::enable_if<std::is_integral<I>::value>::type>
+  explicit constexpr AltInteger(I arg, Flags flags = Flags{})
+      : v(arg), w(sizeof(I) * 2), flags{flags} {}
+  template <typename T,
+            class = typename std::enable_if<std::is_enum<T>::value>::type>
+  explicit constexpr AltInteger(
+      T arg, Flags flags = Flags{},
+      typename std::underlying_type<T>::type /*unused*/ = 0)
+      : v(static_cast<typename std::underlying_type<T>::type>(arg)),
+        w(sizeof(typename std::underlying_type<T>) * 2),
+        flags{flags} {}
+  explicit constexpr AltInteger(Integer i) : v(i.v), w(i.w) {}
+  uint64_t v;
+  int w;
+  Flags flags{};
+
+  friend inline std::ostream &operator<<(std::ostream &os,
+                                         AltInteger const &obj) {
+    auto f = os.flags();
+    if (obj.flags.is_set(IntegerFormat::KiB)) {
+      static constexpr uint64_t KiB_size = 1024;
+      int64_t quot = obj.v / KiB_size;
+      int32_t rem = std::abs(static_cast<int32_t>(obj.v % KiB_size));
+      os << std::dec << quot;
+      if (rem) {
+        rem = (10 * rem) / KiB_size;
+        os << "." << rem;
+      }
+      os << "KiB";
+    } else if (obj.flags.is_set(IntegerFormat::MiB)) {
+      static constexpr uint64_t MiB_size = 1024 * 1024;
+      int64_t quot = obj.v / MiB_size;
+      int64_t rem = std::abs(static_cast<int64_t>(obj.v % MiB_size));
+      os << std::dec << quot;
+      if (rem) {
+        rem = (10 * rem) / MiB_size;
+        os << "." << rem;
+      }
+      os << "MiB";
+    } else {
+      os << std::dec << obj.v;
+    }
+    os.flags(f);
+    return os;
+  }
+
+  static inline AltInteger from_string(std::string const &obj) {
+    // XXX: Pick the correct width.
+    return AltInteger(stoull(obj, nullptr, 0));
+  }
+
+  friend a_forceinline std::string to_string(AltInteger const &obj) {
+    std::stringstream os;
+    os << obj;
+    return os.str();
+  }
+};
+
+/**
  * Hex Integer formatting flags.
  */
 enum class HexFormat {

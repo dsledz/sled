@@ -52,6 +52,7 @@
 #define a_pure __attribute__((pure))
 #define a_forceinline __attribute__((always_inline)) inline
 #define a_noinline __attribute__((noinline))
+#define a_packed __attribute__((packed))
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)
 #define linkas_real(x) asm(#x)
@@ -212,10 +213,10 @@ T *safe_cast(B *b) {
   return f;
 }
 #else
-template <typename T, typename B,
-          class = typename std::enable_if_t<
-              std::__and_<std::true_type /*std::is_trivially_copyable<T> */,
-                          std::is_trivially_copyable<B> >::value> >
+template <
+    typename T, typename B,
+    class = typename std::enable_if_t<std::__and_<
+        std::is_trivially_copyable<T>, std::is_trivially_copyable<B> >::value> >
 T *safe_cast(B *b) {
   std::aligned_storage<sizeof(T), alignof(T)> s;
   std::memcpy(&s, b, sizeof(T));
@@ -223,6 +224,23 @@ T *safe_cast(B *b) {
   std::memcpy(f, &s, sizeof(T));
   return f;
 }
+#endif
+
+#ifdef WIN32
+static inline constexpr uint16_t htobe16(uint16_t host_16bits);
+static inline constexpr uint16_t htole16(uint16_t host_16bits);
+static inline constexpr uint16_t be16toh(uint16_t big_endian_16bits);
+static inline constexpr uint16_t le16toh(uint16_t little_endian_16bits);
+static inline constexpr uint32_t htobe32(uint32_t host_32bits);
+static inline constexpr uint32_t htole32(uint32_t host_32bits);
+static inline constexpr uint32_t be32toh(uint32_t big_endian_32bits);
+static inline constexpr uint32_t le32toh(uint32_t little_endian_32bits);
+static inline constexpr uint64_t htobe64(uint64_t host_64bits);
+static inline constexpr uint64_t htole64(uint64_t host_64bits);
+static inline constexpr uint64_t be64toh(uint64_t big_endian_64bits);
+static inline constexpr uint64_t le64toh(uint64_t little_endian_64bits);
+#else
+#include <endian.h>
 #endif
 
 }  // namespace sled

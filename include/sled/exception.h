@@ -27,7 +27,6 @@ namespace sled {
 struct Exception : public std::exception {
   const char *what() const noexcept override { return msg_.c_str(); }
 
- protected:
   explicit Exception(std::string msg) : msg_(std::move(msg)) {}
 
   template <typename... Args>
@@ -37,6 +36,7 @@ struct Exception : public std::exception {
     msg_ = ss.str();
   }
 
+ protected:
   template <typename T>
   void build(std::stringstream &ss, T &&arg) {
     ss << std::forward<T>(arg);
