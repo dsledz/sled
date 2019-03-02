@@ -207,6 +207,7 @@ class Hex {
                          typename std::underlying_type<T>::type /*unused*/ = 0)
       : v(static_cast<typename std::underlying_type<T>::type>(arg)),
         w(sizeof(typename std::underlying_type<T>) * 2) {}
+  explicit constexpr Hex(std::byte b) : v(std::to_integer<uint64_t>(b)), w(2) {}
   explicit constexpr Hex(Integer i) : v(i.v), w(i.w) {}
   uint64_t v;
   int w;
@@ -265,6 +266,8 @@ class AltHex {
       : v(static_cast<typename std::underlying_type<T>::type>(arg)),
         w(sizeof(typename std::underlying_type<T>) * 2),
         flags{flags} {}
+  explicit constexpr AltHex(std::byte b, Flags flags = Flags{})
+      : v(std::to_integer<uint64_t>(b)), w(2), flags{flags} {}
   explicit constexpr AltHex(Integer i) : v(i.v), w(i.w) {}
   uint64_t v;
   int w;
