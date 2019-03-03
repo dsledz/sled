@@ -2,6 +2,8 @@
 .globl InitialSwitchContext
 .globl SwitchContextIrq
 
+.type InitialSwitchContext,%function
+
 InitialSwitchContext:
     /* Store the old registers */
     push %r12
@@ -25,6 +27,7 @@ InitialSwitchContext:
 
     ret
 
+.type SwitchContext,%function
 SwitchContext:
     /* Store the old registers */
     prefetcht0 (%rsi)
@@ -47,6 +50,7 @@ SwitchContext:
 
     ret
 
+.type SwitchContextIrq,%function
 SwitchContextIrq:
     /* Store the old registers */
     push %r12
