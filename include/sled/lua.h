@@ -12,6 +12,7 @@
 #include <string>
 #include <utility>
 
+#include "sled/platform.h"
 #include "sled/exception.h"
 
 extern "C" {
@@ -59,9 +60,9 @@ class LuaTypeException : public LuaException {
 
 // Overload set for type-safe callables
 // For each function you wish to call from C++, write the corresponding
-// std::function overload
+// func::function overload
 static inline int lua_specialized_call(lua_State *L,
-                                       const std::function<int(int)> &closure) {
+                                       const func::function<int(int)> &closure) {
   if (lua_gettop(L) != 1) {
     lua_pushstring(L, "Incorrect arguments, expected (int)");
     lua_error(L);
@@ -76,7 +77,7 @@ static inline int lua_specialized_call(lua_State *L,
 }
 
 static inline int lua_specialized_call(
-    lua_State *L, const std::function<void(int)> &closure) {
+    lua_State *L, const func::function<void(int)> &closure) {
   if (lua_gettop(L) != 1) {
     lua_pushstring(L, "Incorrect arguments, expected (int)");
     lua_error(L);
@@ -90,7 +91,7 @@ static inline int lua_specialized_call(
 }
 
 static inline int lua_specialized_call(
-    lua_State *L, const std::function<void(int, int)> &closure) {
+    lua_State *L, const func::function<void(int, int)> &closure) {
   if (lua_gettop(L) != 2) {
     lua_pushstring(L, "Incorrect arguments, expected (int, int)");
     lua_error(L);
@@ -106,7 +107,7 @@ static inline int lua_specialized_call(
 }
 
 static inline int lua_specialized_call(
-    lua_State *L, const std::function<int(int, int)> &closure) {
+    lua_State *L, const func::function<int(int, int)> &closure) {
   if (lua_gettop(L) != 2) {
     lua_pushstring(L, "Incorrect arguments, expected (int, int)");
     lua_error(L);
@@ -124,7 +125,7 @@ static inline int lua_specialized_call(
 
 static inline int lua_specialized_call(
     lua_State *L,
-    const std::function<std::string(const std::string &)> &closure) {
+    const func::function<std::string(const std::string &)> &closure) {
   if (lua_gettop(L) != 1) {
     lua_pushstring(L, "Incorrect arguments, expected (string)");
     lua_error(L);
@@ -139,7 +140,7 @@ static inline int lua_specialized_call(
 
 static inline int lua_specialized_call(
     lua_State *L,
-    const std::function<std::string(const std::string &, const std::string &)>
+    const func::function<std::string(const std::string &, const std::string &)>
         &closure) {
   if (lua_gettop(L) != 2) {
     lua_pushstring(L, "Incorrect arguments, expected (string)");
@@ -157,7 +158,7 @@ static inline int lua_specialized_call(
 
 static inline int lua_specialized_call(
     lua_State *L,
-    const std::function<void(const std::string &, const std::string &)>
+    const func::function<void(const std::string &, const std::string &)>
         &closure) {
   if (lua_gettop(L) != 2) {
     lua_pushstring(L, "Incorrect arguments, expected (string, string)");
@@ -174,7 +175,7 @@ static inline int lua_specialized_call(
 }
 
 static inline int lua_specialized_call(
-    lua_State *L, const std::function<std::string(void)> &closure) {
+    lua_State *L, const func::function<std::string(void)> &closure) {
   if (lua_gettop(L) != 0) {
     lua_pushstring(L, "Incorrect arguments, expected ()");
     lua_error(L);
@@ -187,7 +188,7 @@ static inline int lua_specialized_call(
 }
 
 static inline int lua_specialized_call(
-    lua_State *L, const std::function<void(void)> &closure) {
+    lua_State *L, const func::function<void(void)> &closure) {
   if (lua_gettop(L) != 0) {
     lua_pushstring(L, "Incorrect arguments, expected ()");
     lua_error(L);
@@ -201,7 +202,7 @@ static inline int lua_specialized_call(
 
 // End overload set
 
-using lua_call_t = std::function<int(lua_State *)>;
+using lua_call_t = func::function<int(lua_State *)>;
 
 /**
  * Wrapper around a lua callable as a value type.

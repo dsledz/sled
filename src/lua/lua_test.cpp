@@ -140,7 +140,7 @@ TEST_F(LuaTest, call_and_return_int_as_string) {
 }
 
 TEST_F(LuaTest, closure_test) {
-  sled::lua::LuaClosure<std::function<int(int)> > closure(
+  sled::lua::LuaClosure<func::function<int(int)> > closure(
       "test", [](int v) -> int { return v * 5; });
   lua.add(closure);
 
@@ -156,7 +156,7 @@ TEST_F(LuaTest, closure_test) {
 }
 
 TEST_F(LuaTest, closure_test_a_b) {
-  sled::lua::LuaClosure<std::function<int(int, int)> > closure(
+  sled::lua::LuaClosure<func::function<int(int, int)> > closure(
       "test", [](int a, int b) -> int { return b; });
   lua.add(closure);
 
@@ -189,7 +189,7 @@ TEST_F(LuaTest, closure_string_return_string) {
 }
 
 TEST_F(LuaTest, closure_void_return_string) {
-  sled::lua::LuaClosure<std::function<std::string(void)> > closure(
+  sled::lua::LuaClosure<func::function<std::string(void)> > closure(
       "test", []() -> std::string { return "end"; });
   lua.add(closure);
 
@@ -206,7 +206,7 @@ TEST_F(LuaTest, closure_void_return_string) {
 }
 
 TEST_F(LuaTest, closure_exception) {
-  sled::lua::LuaClosure<std::function<std::string(void)> > closure(
+  sled::lua::LuaClosure<func::function<std::string(void)> > closure(
       "test", []() -> std::string { return "end"; });
   lua.add(closure);
 
@@ -219,9 +219,9 @@ TEST_F(LuaTest, closure_exception) {
 }
 
 TEST_F(LuaTest, library_test) {
-  sled::lua::LuaClosure<std::function<int(int)> > inc(
+  sled::lua::LuaClosure<func::function<int(int)> > inc(
       "inc", [](int v) -> int { return v + 1; });
-  sled::lua::LuaClosure<std::function<int(int)> > dec(
+  sled::lua::LuaClosure<func::function<int(int)> > dec(
       "dec", [](int v) -> int { return v - 1; });
   sled::lua::LuaLibrary lib("ops");
 
@@ -248,9 +248,9 @@ TEST_F(LuaTest, library_test) {
 }
 
 TEST_F(LuaTest, class_test) {
-  sled::lua::LuaClosure<std::function<int(int)> > inc(
+  sled::lua::LuaClosure<func::function<int(int)> > inc(
       "inc", [](int v) -> int { return v + 1; });
-  sled::lua::LuaClosure<std::function<int(int)> > dec(
+  sled::lua::LuaClosure<func::function<int(int)> > dec(
       "dec", [](int v) -> int { return v - 1; });
   sled::lua::LuaClass cls("test");
 

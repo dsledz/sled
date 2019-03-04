@@ -193,7 +193,7 @@ TEST_F(MultipleCoExecutorTest, cross_future) {
 }
 
 TEST_F(MultipleCoExecutorTest, unique_ptr_return) {
-  using task_t = ex::CoExecutor::task_t<std::function<std::unique_ptr<int>()>>;
+  using task_t = ex::CoExecutor::task_t<func::function<std::unique_ptr<int>()>>;
   task_t task(&exec_ctx1, []() { return std::make_unique<int>(); });
 
   auto *fut = task.queue_start();
@@ -205,7 +205,7 @@ TEST_F(MultipleCoExecutorTest, unique_ptr_return) {
 }
 
 struct AsyncReturn {
-  using task_t = ex::CoExecutor::task_t<std::function<intptr_t()>>;
+  using task_t = ex::CoExecutor::task_t<func::function<intptr_t()>>;
 
   AsyncReturn(ex::CoExecutor *exec_ctx, intptr_t arg)
       : task(exec_ctx, [self = this]() { return self->arg; }), arg(arg) {}

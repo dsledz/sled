@@ -88,3 +88,34 @@ TEST_F(EnumTest, iterate) {
   EXPECT_EQ(4, count);
   EXPECT_EQ("Value0Value1Value2Value3", ss.str());
 }
+
+struct TestFlag final : sled::enum_struct<uint32_t, TestFlag> {
+  static constexpr std::array<name_type, 4> names {
+    std::make_pair(0x01, "Flag1"),
+    std::make_pair(0x02, "Flag2"),
+    std::make_pair(0x04, "Flag3"),
+    std::make_pair(0x08, "Flag4"),
+  };
+
+  using enum_struct::enum_struct;
+
+  struct V;
+};
+
+struct TestFlag::V {
+  static constexpr TestFlag Flag1{0x01};
+  static constexpr TestFlag Flag2{0x02};
+  static constexpr TestFlag Flag3{0x04};
+  static constexpr TestFlag Flag4{0x08};
+};
+
+struct TestFlags final : sled::flags_struct<TestFlag, TestFlags> {
+  using flags_struct::flags_struct;
+};
+
+TEST_F(EnumTest, flags) {
+  TestFlags flags{TestFlag::V::Flag1, TestFlag::V::Flag2};
+
+  EXPECT_EQ(0x01 | 0x02, flags.get());
+}
+

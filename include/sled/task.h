@@ -53,7 +53,7 @@ struct TaskId {
  */
 class Task {
  public:
-  using task_fn = std::function<void() noexcept>;
+  using task_fn = func::function<void() noexcept>;
 
   Task() : flags_(), ident_() {}
 

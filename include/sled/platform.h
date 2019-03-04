@@ -33,6 +33,8 @@
 #endif
 #include "sled/opts.h"
 
+#include "sled/alt_function.h"
+
 #ifdef WIN32
 #define a_used
 #define a_unused
