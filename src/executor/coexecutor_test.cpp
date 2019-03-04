@@ -189,9 +189,7 @@ TEST_F(MultipleCoExecutorTest, cross_future) {
   auto result2 = task2.queue_start();
   result2->wait();
 
-  auto opt1b = result1->get();
-  EXPECT_TRUE(opt1b.has_value());
-  EXPECT_EQ(5, opt1b.value());
+  EXPECT_EQ(5, result1->wait());
 }
 
 TEST_F(MultipleCoExecutorTest, unique_ptr_return) {
