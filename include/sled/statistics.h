@@ -37,10 +37,21 @@ struct Counter {
     return *this;
   }
 
+  a_forceinline constexpr Counter &operator-=(T rhs) {
+    v -= rhs;
+    return *this;
+  }
+
   a_forceinline constexpr const Counter<T> operator++(int) {
     v++;
     return *this;
   }
+
+  a_forceinline constexpr const Counter<T> operator--(int) {
+    v--;
+    return *this;
+  }
+
 
   T v{};
 };
