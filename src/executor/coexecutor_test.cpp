@@ -146,4 +146,84 @@ TEST_F(CoExecutorTest, producer_consumer_put_wait) {
   thr.join();
 }
 
+class MultipleCoExecutorTest : public ::testing::Test {
+ protected:
+  MultipleCoExecutorTest() = default;
 
+  void SetUp() override {
+    thread_task = exec_ctx1.adopt_thread();
+    thr1 = std::thread{thread_fn, &exec_ctx1};
+    thr2 = std::thread{thread_fn, &exec_ctx2};
+  }
+  void TearDown() override {
+    exec_ctx1.unadopt_thread(thread_task);
+    exec_ctx1.shutdown();
+    thr1.join();
+    exec_ctx2.shutdown();
+    thr2.join();
+  }
+
+  static void thread_fn(ex::CoExecutor *exec_ctx) {
+    auto task = exec_ctx->adopt_thread();
+    task->run();
+  }
+
+  ex::Task *thread_task;
+  ex::CoExecutor exec_ctx1;
+  std::thread thr1;
+  ex::CoExecutor exec_ctx2;
+  std::thread thr2;
+};
+
+TEST_F(MultipleCoExecutorTest, cross_future) {
+  ex::Future<int, ex::CoExecutor> fut;
+
+  // Consumer
+  auto task1 = exec_ctx1.create_task([&]() -> int { return fut.wait(); });
+  auto result1 = task1.queue_start();
+  auto opt1 = result1->get();
+  EXPECT_FALSE(opt1.has_value());
+
+  // Producer
+  auto task2 = exec_ctx2.create_task([&]() { fut.set_result(5); });
+  auto result2 = task2.queue_start();
+  result2->wait();
+
+  auto opt1b = result1->get();
+  EXPECT_TRUE(opt1b.has_value());
+  EXPECT_EQ(5, opt1b.value());
+}
+
+TEST_F(MultipleCoExecutorTest, unique_ptr_return) {
+  using task_t = ex::CoExecutor::task_t<std::function<std::unique_ptr<int>()>>;
+  task_t task(&exec_ctx1, []() { return std::make_unique<int>(); });
+
+  auto *fut = task.queue_start();
+
+  auto intp = fut->wait();
+  EXPECT_FALSE(intp == nullptr);
+  *intp = 5;
+  EXPECT_EQ(5, *intp.get());
+}
+
+struct AsyncReturn {
+  using task_t = ex::CoExecutor::task_t<std::function<intptr_t()>>;
+
+  AsyncReturn(ex::CoExecutor *exec_ctx, intptr_t arg)
+      : task(exec_ctx, [self = this]() { return self->arg; }), arg(arg) {}
+
+  auto queue_start() { return task.queue_start(); }
+
+  task_t task;
+  intptr_t arg{0};
+};
+
+TEST_F(MultipleCoExecutorTest, unique_ptr_struct) {
+  auto callable = [&]() {
+    auto ret = std::make_unique<AsyncReturn>(&exec_ctx1, 1234);
+    auto fut = ret->queue_start();
+    return fut->wait();
+  }();
+
+  EXPECT_EQ(1234, callable);
+}
