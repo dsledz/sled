@@ -174,9 +174,8 @@ struct enum_struct {
 
   static inline Tag from_string(std::string const &obj) {
     // TODO(dan): rework this function so it can be constexpr
-    auto str = str_tolower(obj);
     for (auto &name : our_type::names) {
-      if (str == str_tolower(name.second)) {
+      if (str_iequal(obj, name.second)) {
         return Tag{name.first};
       }
     }

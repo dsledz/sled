@@ -12,36 +12,59 @@
 #include <ostream>
 #include <string>
 
+#include "sled/platform.h"
+
 namespace sled {
 
 /**
  * Convert a string to lowercase using the current locale.
  */
-static inline std::string str_tolower(std::string s) {
+static inline void str_tolower(std::string &s) {
+  std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+}
+
+/**
+ * Convert a string to lowercase using the current locale.
+ * Return a copy.
+ */
+static inline std::string str_tolower_copy(std::string s) {
   std::transform(s.begin(), s.end(), s.begin(), ::tolower);
   return s;
 }
 
 /**
+ * string insentive equals
+ */
+static inline bool str_iequal(const std::string &lhs, const std::string &rhs) {
+  return std::equal(
+      lhs.begin(), lhs.end(), rhs.begin(), rhs.end(),
+      [](char a, char b) { return ::tolower(a) == ::tolower(b); });
+}
+
+/**
  * Returns true iff @a s ends with @a e.
  */
-static inline bool ends_with(const std::string &s, const std::string &e) {
-  size_t n = s.rfind(e);
+static inline bool ends_with(const std::string &haystack,
+                             const std::string &needle) {
+  size_t n = haystack.rfind(needle);
   if (n == std::string::npos) {
     return false;
   }
-  size_t s_len = s.size();
-  size_t e_len = e.size();
+  size_t s_len = haystack.size();
+  size_t e_len = needle.size();
   if (s_len < e_len) {
     return false;
   }
   return (n == s_len - e_len);
 }
 
-template<typename T>
-static inline std::string as_string(const std::string &hint, const T &obj) {
+/**
+ * Return a formated obj as a string.
+ */
+template <typename T>
+static inline std::string as_string(const std::string &prefix, const T &obj) {
   std::stringstream ss;
-  ss << hint << "<" << obj << ">";
+  ss << prefix << "<" << obj << ">";
   return ss.str();
 }
 
@@ -61,6 +84,28 @@ template <typename H, typename... T>
 void sstreamfn(std::ostream &os, H const &p, T const &... t) {
   os << p;
   sled::sstreamfn(os, t...);
+}
+
+// From:
+// https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
+// trim from start (in place)
+static inline void ltrim(std::string &s) {
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+                                  [](int ch) { return !std::isspace(ch); }));
+}
+
+// trim from end (in place)
+static inline void rtrim(std::string &s) {
+  s.erase(std::find_if(s.rbegin(), s.rend(),
+                       [](int ch) { return !std::isspace(ch); })
+              .base(),
+          s.end());
+}
+
+// trim from both ends (in place)
+static inline void trim(std::string &s) {
+  ltrim(s);
+  rtrim(s);
 }
 
 } // namespace sled
