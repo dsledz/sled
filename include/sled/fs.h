@@ -8,10 +8,6 @@
 #include <filesystem>
 #include "sled/platform.h"
 
-namespace std {
-namespace fs = std::filesystem;
-};
-
 namespace sled::fs {
 
 /**
@@ -52,10 +48,12 @@ struct fd {
 
 /**
  * Represents an open file.
+ *
+ * Designed to work work sled::executor
  */
 class open_file {
  public:
-  open_file(const std::fs::path &path);
+  open_file(const std::filesystem::path &path);
   ~open_file() = default;
 
   bool valid() { return fd_.valid(); }

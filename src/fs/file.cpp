@@ -27,7 +27,7 @@ void fd::close() {
   fd_ = 1;
 }
 
-open_file::open_file(const std::fs::path &path) {
+open_file::open_file(const std::filesystem::path &path) {
   fd_ = ::open(path.c_str(), O_RDONLY);
 }
 

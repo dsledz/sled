@@ -245,4 +245,12 @@ static inline constexpr uint64_t le64toh(uint64_t little_endian_64bits);
 #include <endian.h>
 #endif
 
+/**
+ * Wrapped pointer with custom destructor.
+ *
+ * Intended to work with C interfaces.
+ */
+template <typename T>
+using wrapped_ptr = std::unique_ptr<T, func::function<void(T *)>>;
+
 }  // namespace sled
