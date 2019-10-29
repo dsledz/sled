@@ -87,5 +87,8 @@ TEST_F(BytestreamTest, fixed_bits_read) {
 
   EXPECT_EQ(0x00, bs.be_bits_pread<1>(0).v);
   EXPECT_EQ(0x01, bs.be_bits_pread<1>(15).v);
-  EXPECT_EQ(0x20, bs.be_bits_pread<9>(16 * 8).v);
+  EXPECT_EQ(0x1, bs.be_bits_pread<4>(16 * 8).v);
+  auto v = bs.be_bits_pread<9>(16 * 8);
+  EXPECT_EQ(9, v.width());
+  EXPECT_EQ(0x20, v.v);
 }

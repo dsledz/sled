@@ -232,14 +232,15 @@ class bytestream {
     int bits_left = num_bits;
     while (bits_left > 0) {
       /* Extract the current bits from the byte */
+      /* (high, low] */
       int high = 8 - bits_offset;
-      int low = std::max(high - bits_left, 1);
+      int low = std::max(high - bits_left, 0);
       std::byte b = begin_[byte_offset];
       // Mask the high bits
       b = b & std::byte((1u << high) - 1);
       // Shift away the low bits
-      b = b >> (low - 1);
-      bits_left -= high - low + 1;
+      b = b >> low;
+      bits_left -= high - low;
       bits.v |= std::to_integer<uint64_t>(b) << bits_left;
       bits_offset = 0;
       byte_offset++;

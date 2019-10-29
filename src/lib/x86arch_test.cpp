@@ -30,7 +30,11 @@ TEST_F(X86ArchTest, cpuid7) {
   auto ebx = cpuid.ebx();
   EXPECT_TRUE(ebx.is_set(sled::x86::CPUID7_EBX_FEATURE::V::BMI2));
   EXPECT_TRUE(ebx.is_set(sled::x86::CPUID7_EBX_FEATURE::V::AVX2));
-  EXPECT_TRUE(ebx.is_set(sled::x86::CPUID7_EBX_FEATURE::V::AVX512f));
+  if (ebx.is_set(sled::x86::CPUID7_EBX_FEATURE::V::AVX512f)) {
+      EXPECT_TRUE(sled::avx512_hwarch::available());
+  } else {
+      EXPECT_FALSE(sled::avx512_hwarch::available());
+  }
 }
 
 /**
