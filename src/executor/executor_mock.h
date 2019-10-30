@@ -23,6 +23,26 @@ struct MockExecutor : public sled::executor::Executor {
   template <typename closure_t>
   using task_t = sled::executor::ExecTask<MockExecutor, closure_t>;
 
+  class MockThreadTask final : public sled::executor::Task {
+   public:
+    MockThreadTask(MockExecutor *exec_ctx) : exec_ctx_(exec_ctx) {
+      assert(current_task_ == nullptr);
+    }
+    ~MockThreadTask() {
+      assert(current_task_ == this);
+      MockExecutor::current_task_ = nullptr;
+    }
+
+    void run() override {}
+    void suspend() override {}
+    void wake() override {}
+    void schedule() override {}
+    void yield() override {}
+
+   private:
+    MockExecutor *exec_ctx_;
+  };
+
  public:
   MockExecutor();
   ~MockExecutor() final;
@@ -55,7 +75,11 @@ class MockedExecutorTest : public ::testing::Test {
  protected:
   MockedExecutorTest() = default;
 
-  void SetUp() override { thread_task = exec_ctx.adopt_thread(); }
+  void SetUp() override {
+    thread_task = exec_ctx.adopt_thread();
+    assert(thread_task != nullptr);
+    assert(exec_ctx.cur_task() != nullptr);
+  }
 
   void TearDown() override { exec_ctx.unadopt_thread(thread_task); }
 

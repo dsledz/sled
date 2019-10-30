@@ -17,6 +17,7 @@ class atomic_flags {
  public:
   using field_type = typename std::underlying_type<T>::type;
   using nonatomic_type = sled::flags<T>;
+  using cond_return_type = std::pair<bool, nonatomic_type>;
 
   atomic_flags() = default;
   atomic_flags(std::initializer_list<T> l) {
@@ -48,6 +49,35 @@ class atomic_flags {
 
   void set(T t) { value_ |= static_cast<field_type>(t); }
 
+  cond_return_type set_cond(
+      nonatomic_type const& to_set,
+      nonatomic_type const& predicate_clear = nonatomic_type{},
+      nonatomic_type const& predicate_set = nonatomic_type{}) {
+    field_type set = to_set.get();
+    field_type pred_clear = predicate_clear.get();
+    field_type pred_set = predicate_set.get();
+    field_type old = value_;
+    field_type new_value;
+    for (;;) {
+      if ((old & pred_clear) != 0) {
+        return std::make_pair(false, nonatomic_type(old));
+      }
+      if ((old & pred_set) != pred_set) {
+        return std::make_pair(false, nonatomic_type(old));
+      }
+      new_value = old | set;
+
+      if (std::atomic_compare_exchange_strong(&value_, &old, new_value)) {
+        break;
+      }
+    }
+    return std::make_pair(true, nonatomic_type(new_value));
+  }
+
+  cond_return_type clear_cond(nonatomic_type const& to_clear) {
+    return update({}, to_clear);
+  }
+
   nonatomic_type update(nonatomic_type const& to_set,
                         nonatomic_type const& to_clear) {
     field_type clear = to_clear.get();
@@ -62,6 +92,28 @@ class atomic_flags {
       }
     }
     return nonatomic_type(new_value);
+  }
+
+  cond_return_type update_cond(nonatomic_type const& to_set,
+                               nonatomic_type const& to_clear) {
+    field_type clear = to_clear.get();
+    field_type set = to_set.get();
+    field_type old = value_;
+    field_type new_value;
+    for (;;) {
+      if ((old & clear) != clear) {
+        return std::make_pair(false, nonatomic_type(old));
+      }
+      if ((old & set) != 0) {
+        return std::make_pair(false, nonatomic_type(old));
+      }
+      new_value = (old & ~clear) | set;
+
+      if (std::atomic_compare_exchange_strong(&value_, &old, new_value)) {
+        break;
+      }
+    }
+    return std::make_pair(true, nonatomic_type(new_value));
   }
 
   bool compare_exchange(nonatomic_type const& old_value,

@@ -22,6 +22,7 @@ class CoExecutorTest : public ::testing::Test {
   static void thread_fn(ex::CoExecutor *exec_ctx) {
     auto task = exec_ctx->adopt_thread();
     task->run();
+    exec_ctx->unadopt_thread(task);
   }
 
   ex::CoExecutor exec_ctx;
@@ -69,7 +70,7 @@ TEST_F(CoExecutorTest, producer_consumer_same_thread) {
 }
 
 TEST_F(CoExecutorTest, producer_consumer) {
-  auto thr = std::thread{thread_fn, &exec_ctx};
+  std::thread thr{thread_fn, &exec_ctx};
   ex::Channel<int, ex::CoExecutor> channel;
   int total = 0;
   int max = 10;
@@ -95,7 +96,7 @@ TEST_F(CoExecutorTest, producer_consumer) {
 }
 
 TEST_F(CoExecutorTest, producer_consumer_as_return) {
-  auto thr = std::thread{thread_fn, &exec_ctx};
+  std::thread thr{thread_fn, &exec_ctx};
   ex::Channel<int, ex::CoExecutor> channel;
   int max = 10;
 
@@ -121,7 +122,7 @@ TEST_F(CoExecutorTest, producer_consumer_as_return) {
 }
 
 TEST_F(CoExecutorTest, producer_consumer_put_wait) {
-  auto thr = std::thread{thread_fn, &exec_ctx};
+  std::thread thr{thread_fn, &exec_ctx};
   ex::Channel<int, ex::CoExecutor> channel;
   int total = 0;
   int max = 1000;
@@ -142,6 +143,7 @@ TEST_F(CoExecutorTest, producer_consumer_put_wait) {
   f2->wait();
   f1->wait();
   EXPECT_EQ(499500, total);
+  EXPECT_EQ(0, channel.size());
   exec_ctx.shutdown();
   thr.join();
 }

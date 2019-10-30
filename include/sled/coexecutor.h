@@ -33,20 +33,26 @@ class CoTask : public task_type_t<Fn> {
     // Ran in the context of CoThreadTask, potentially entered multiple times.
     debug_assert(this == executor_t::cur_task());
     debug_assert(this->flags_.is_set(TaskFlag::Queued));
-    this->flags_.clear(TaskFlag::Queued);
     // Resume/start our fiber if we're not finished.
     // Due to races, it's possible the task will be queued while running.
     // If the task exits, it will run one more time.
     if (this->flags_.is_clear(TaskFlag::Finished)) {
-      if (this->flags_.is_clear(TaskFlag::Running)) {
+      auto attempt_start =
+          this->flags_.update_cond({TaskFlag::Running}, {TaskFlag::Queued});
+      if (attempt_start.first) {
+        // Task was queued but not running, start it.
         // Switch to the fiber thread and start execution
-        this->flags_.set(TaskFlag::Running);
         co_ctx_.start(&other_ctx_);
       } else {
+        // We know the queue flag was set above.
+        this->flags_.clear({TaskFlag::Queued});
+        // Task was queued *and* running, resume.
         // Switch to the fiber thread. Fiber will resume after the yield call
         co_ctx_.resume(&other_ctx_);
       }
       debug_assert(this->flags_.is_clear(TaskFlag::Running));
+    } else {
+      this->flags_.clear(TaskFlag::Queued);
     }
     // Now that we're back, we can share our result.
     // Ensure the task hasn't been re-queued.
@@ -63,23 +69,33 @@ class CoTask : public task_type_t<Fn> {
     }
   }
   void wake() final {
-    if (this->flags_.is_clear(TaskFlag::Queued)) {
-      this->flags_.update({TaskFlag::Queued}, {});
+    // the current task can't wake itself (logic error)
+    assert(executor_t::cur_task() != this);
+    // This can happen on any task that has a reference
+    // to ours. Make sure we only queue once if the task isn't already
+    // running
+    auto result = this->flags_.set_cond({TaskFlag::Queued},
+                                        {TaskFlag::Running, TaskFlag::Queued});
+    if (result.first) {
       exec_ctx_->schedule(this);
     }
   }
   void suspend() final {
+    // Only the current task can suspend.
+    assert(executor_t::cur_task() == this);
     this->flags_.update({TaskFlag::Suspended}, {TaskFlag::Running});
     co_ctx_.yield(&other_ctx_);
   }
 
   void yield() final {
-    if (this->flags_.is_clear(TaskFlag::Queued)) {
-      exec_ctx_->schedule(this);
-      this->flags_.update({TaskFlag::Queued}, {TaskFlag::Running});
-    } else {
-      this->flags_.clear(TaskFlag::Running);
-    }
+    // Only the current task can yield.
+    assert(executor_t::cur_task() == this);
+    // We shouldn't be queued already
+    assert(this->flags_.is_clear({TaskFlag::Queued}));
+    // Yield, putting ourselves in the back of the run queue.
+    // basically the same as suspend + wake
+    this->flags_.update({TaskFlag::Queued}, {TaskFlag::Running});
+    exec_ctx_->schedule(this);
     co_ctx_.yield(&other_ctx_);
   }
 
@@ -195,6 +211,10 @@ class CoExecutor : public Executor {
     }
 
     void run() override {
+      // Primary loop for a coexecutor thread.  Acts like a task
+      // for the pruposes of suspend/wake.
+      debug_assert(this == cur_task());
+      this->flags_.set(TaskFlag::Running);
       try {
         for (;;) {
           CoExecutor::current_task_ = this;
@@ -206,17 +226,49 @@ class CoExecutor : public Executor {
             break;
           }
         }
-      } catch (std::exception &) {
+      } catch (std::exception &e) {
+        throw e;
       }
     }
 
     void suspend() override {
-      // Start with a yield.
-      yield();
-      // XXX: We should actually sleep.
+      debug_assert(CoExecutor::current_task_ == this);
+      this->flags_.update({TaskFlag::Suspended}, {TaskFlag::Running});
+      try {
+        while (this->flags_.is_clear(TaskFlag::Queued)) {
+          CoExecutor::current_task_ = this;
+          if (auto task_opt = exec_ctx_->try_next(); task_opt.has_value()) {
+            auto *task = task_opt.value();
+            CoExecutor::current_task_ = task;
+            task->run();
+          } else {
+            // At this point, we expect something else is running
+            // that will eventually wake us up.
+            sled::sync::lock_guard<std::mutex> lock(mtx_);
+            lock.wait(cv_);
+          }
+        }
+      } catch (std::exception &e) {
+        throw e;
+      }
+      CoExecutor::current_task_ = this;
+      {
+        // Restart, clearing our queue flag.
+        sled::sync::lock_guard<std::mutex> lock(mtx_);
+        assert(this->flags_.is_set(TaskFlag::Queued));
+        this->flags_.update({TaskFlag::Running},
+                            {TaskFlag::Suspended, TaskFlag::Queued});
+      }
     }
+
     void wake() override {
-      // XXX: Since we never sleep, we never have to wake
+      // the current task can't wake itself (logic error)
+      debug_assert(CoExecutor::current_task_ != this);
+      sled::sync::lock_guard<std::mutex> lock(mtx_);
+      if (this->flags_.is_set(TaskFlag::Suspended)) {
+        this->flags_.set(TaskFlag::Queued);
+        cv_.notify_one();
+      }
     }
     void schedule() override {
       // XXX: Unsure if this is really required.

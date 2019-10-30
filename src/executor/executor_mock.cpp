@@ -22,9 +22,11 @@ sled::executor::TaskId MockExecutor::current_task_id() {
 void MockExecutor::cur_task_suspend() {}
 
 sled::executor::Task* MockExecutor::adopt_thread() {
-  sled::executor::Task* task = nullptr;
-  MockExecutor::current_task_ = task;
-  return task;
+  assert(MockExecutor::current_task_ == nullptr);
+  auto task = std::make_unique<MockThreadTask>(this);
+  MockExecutor::current_task_ = task.get();
+  auto base_task = std::unique_ptr<sled::executor::Task>(std::move(task));
+  return base_task.release();
 }
 
 void MockExecutor::unadopt_thread(sled::executor::Task* task) {

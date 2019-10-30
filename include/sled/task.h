@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include "sled/atomic.h"
 #include "sled/channel.h"
 #include "sled/enum.h"
 #include "sled/future.h"
@@ -28,7 +29,7 @@ enum class TaskFlag {
   Suspended = 0x20, /**< Suspended */
 };
 
-using TaskFlags = sled::flags<TaskFlag>;
+using TaskFlags = sled::atomic_flags<TaskFlag>;
 
 /**
  * Task identifier.
