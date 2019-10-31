@@ -12,7 +12,10 @@
 namespace sled {
 
 /**
- * Wrapper for flags based upon an "enum class"
+ * Flags class to wrap an "enum class" to work more like a normal enum
+ * but with enhanced type-checking.
+ *
+ * Designed to be a zero-cost abstraction.
  */
 template <typename T>
 class flags {
@@ -27,54 +30,56 @@ class flags {
   }
   explicit constexpr flags(field_type value) : value_(value) {}
 
-  bool empty() const { return value_ == 0; }
+  a_forceinline bool empty() const noexcept { return value_ == 0; }
 
-  void zero() { value_ = 0; }
+  a_forceinline void zero() noexcept { value_ = 0; }
 
-  field_type &get() { return value_; }
+  a_forceinline field_type &get() noexcept { return value_; }
 
-  field_type get() const { return value_; }
+  a_forceinline field_type get() const noexcept { return value_; }
 
-  a_forceinline bool is_set(T t) const {
+  a_forceinline bool is_set(T t) const noexcept {
     return (value_ & static_cast<field_type>(t)) != 0;
   }
 
-  a_forceinline bool is_clear(T t) const { return !is_set(t); }
+  a_forceinline bool is_clear(T t) const noexcept { return !is_set(t); }
 
-  void clear(T t) { value_ &= ~static_cast<field_type>(t); }
+  a_forceinline void clear(T t) noexcept {
+    value_ &= ~static_cast<field_type>(t);
+  }
 
-  void set(T t) { value_ |= static_cast<field_type>(t); }
+  a_forceinline void set(T t) noexcept { value_ |= static_cast<field_type>(t); }
 
-  void update(flags to_set, flags to_clear) {
+  a_forceinline void update(flags to_set, flags to_clear) noexcept {
     value_ = (value_ & ~to_clear.value_) | to_set.value_;
   }
 
-  flags<T> &operator|=(const flags<T> &rhs) {
+  a_forceinline flags<T> &operator|=(const flags<T> &rhs) noexcept {
     value_ |= rhs.value_;
     return *this;
   }
 
-  flags<T> &operator|=(const T &rhs) {
+  a_forceinline flags<T> &operator|=(const T &rhs) noexcept {
     value_ |= static_cast<field_type>(rhs);
     return *this;
   }
 
-  flags<T> operator~() { return ~value_; }
+  a_forceinline flags<T> operator~() noexcept { return ~value_; }
 
-  friend inline const flags<T> operator|(const flags<T> &lhs, T rhs) {
+  friend inline const flags<T> operator|(const flags<T> &lhs, T rhs) noexcept {
     flags<T> ret(lhs);
     ret |= rhs;
     return ret;
   }
 
   friend inline constexpr flags<T> operator|(flags<T> const &lhs,
-                                             flags<T> const &rhs) {
+                                             flags<T> const &rhs) noexcept {
     flags<T> ret(lhs);
     ret |= rhs;
     return ret;
   }
 
-  friend bool operator==(const flags &lhs, const flags &rhs) {
+  friend bool operator==(const flags &lhs, const flags &rhs) noexcept {
     return lhs.value_ == rhs.value_;
   }
 
@@ -82,6 +87,30 @@ class flags {
   field_type value_{};
 };
 
+/**
+ * A more complex introspection-based base class for an enumeration.
+ *
+ * This class should be subclassed before use.
+ * Members @names and @V should be defined as in the example.
+ * The awkwardness exists to allow constexpr usage of structure.
+ *
+ * @a T - Integral type suitable to hold all possible values of the enumeration.
+ * @a Tag - Enumeration type.
+ *
+ * \code{.cpp}
+ * struct Enum final : sled::enum_struct<uint32_t, Enum> {
+ *   public:
+ *     static constexpr std::array<name_type, 1> names{
+ *       std::make_pair(1, "Val")};
+ *     using sled::enum_struct<uint32_t, EnumValues>::enum_struct;
+ *     struct V;
+ * };
+ *
+ * struct Enum::V {
+ *    static constexpr Enum Val{1};
+ * };
+ * \endcode{}
+ */
 template <typename T, typename Tag>
 struct enum_struct {
  public:
@@ -182,6 +211,21 @@ struct enum_struct {
     throw sled::ConversionError(obj);
   }
 
+  static inline std::ostream &choices(std::ostream &os) {
+    bool first = true;
+    os << "[";
+    for (auto &name : our_type::names) {
+      if (first) {
+        first = false;
+      } else {
+        os << ", ";
+      }
+      os << name.second;
+    }
+    os << "]";
+    return os;
+  }
+
   friend a_forceinline std::string to_string(Tag const &obj) {
     std::stringstream os;
     os << obj;
@@ -190,7 +234,23 @@ struct enum_struct {
 };
 
 /**
+ * An introspection-based base class for a set of flags.
+ *
+ * This class should be subclassed before use.
+ * Members @names and @V should be defined as in the example.
+ * The awkwardness exists to allow constexpr usage.
+ *
+ * @a T - A subclassed enum_struct<>
+ * @a Tag - flags type.
+ *
  * Flags based on an enum.
+ *
+ * \code{.cpp}
+ * struct Enum final : sled::enum_struct<uint32_t, Enum>{};
+ * struct Flags final : sled::flags_struct<Enum, Flags> {
+ *   using flags_struct::flags_struct;
+ * }
+ * \endcode{}
  */
 template <typename T, typename Tag>
 class flags_struct {
@@ -205,54 +265,55 @@ class flags_struct {
   }
   explicit constexpr flags_struct(field_type value) : v(value) {}
 
-  bool empty() const { return v == 0; }
+  bool empty() const noexcept { return v == 0; }
 
-  void zero() { v = 0; }
+  void zero() noexcept { v = 0; }
 
-  field_type &get() { return v; }
+  a_forceinline field_type &get() noexcept { return v; }
 
-  field_type get() const { return v; }
+  a_forceinline field_type get() const noexcept { return v; }
 
-  a_forceinline bool is_set(T t) const { return (v & t.v) != 0; }
+  a_forceinline bool is_set(T t) const noexcept { return (v & t.v) != 0; }
 
-  a_forceinline bool is_clear(T t) const { return !is_set(t); }
+  a_forceinline bool is_clear(T t) const noexcept { return !is_set(t); }
 
-  void clear(T t) { v &= ~t.v; }
+  a_forceinline void clear(T t) noexcept { v &= ~t.v; }
 
-  void set(T t) { v |= t.v; }
+  a_forceinline void set(T t) noexcept { v |= t.v; }
 
-  void update(Tag to_set, Tag to_clear) {
+  a_forceinline void update(Tag to_set, Tag to_clear) noexcept {
     Tag &t = static_cast<Tag &>(*this);
     v = (v & ~to_clear.v) | to_set.v;
   }
 
-  Tag &operator|=(Tag const &rhs) {
+  a_forceinline Tag &operator|=(Tag const &rhs) noexcept {
     Tag &t = static_cast<Tag &>(*this);
     t.v |= rhs.v;
     return t;
   }
 
-  Tag &operator|=(const T &rhs) {
+  a_forceinline Tag &operator|=(const T &rhs) noexcept {
     Tag &t = static_cast<Tag &>(*this);
     t.v |= rhs.v;
     return t;
   }
 
-  Tag operator~() { return ~v; }
+  a_forceinline Tag operator~() const noexcept { return ~v; }
 
-  friend inline const Tag operator|(const Tag &lhs, T rhs) {
+  friend inline const Tag operator|(const Tag &lhs, T rhs) noexcept {
     Tag ret(lhs);
     ret |= rhs;
     return ret;
   }
 
-  friend inline constexpr Tag operator|(Tag const &lhs, Tag const &rhs) {
+  friend inline constexpr Tag operator|(Tag const &lhs,
+                                        Tag const &rhs) noexcept {
     Tag ret(lhs);
     ret |= rhs;
     return ret;
   }
 
-  friend bool operator==(Tag const &lhs, Tag const &rhs) {
+  friend bool operator==(Tag const &lhs, Tag const &rhs) noexcept {
     return lhs.v == rhs.v;
   }
 
@@ -278,6 +339,48 @@ class flags_struct {
     std::stringstream ss;
     ss << rhs;
     return ss.str();
+  }
+
+  static inline Tag from_string(std::string const &obj) {
+    Tag value{};
+    int last = 0;
+    int off = 0;
+    do {
+      off = obj.find("|", last);
+      std::string v = [&]() {
+        if (off == std::string::npos) {
+          return obj.substr(last);
+        } else {
+          return obj.substr(last, off - last);
+        }
+      }();
+      sled::trim(v);
+      if (auto it = std::find_if(
+              T::our_type::names.begin(), T::our_type::names.end(),
+              [&](auto &it) { return sled::str_iequal(it.second, v); });
+          it != T::our_type::names.end()) {
+        value |= Tag(it->first);
+      } else if (!v.empty()) {
+        throw sled::ConversionError("Flags", obj);
+      }
+      last = off + 1;
+    } while (off != std::string::npos);
+    return value;
+  }
+
+  static inline std::ostream &choices(std::ostream &os) {
+    bool first = true;
+    os << "[";
+    for (auto &name : T::our_type::names) {
+      if (first) {
+        first = false;
+      } else {
+        os << "|";
+      }
+      os << name.second;
+    }
+    os << "]";
+    return os;
   }
 
  private:

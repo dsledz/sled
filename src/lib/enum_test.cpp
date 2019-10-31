@@ -13,6 +13,17 @@ class EnumTest : public ::testing::Test {
   EnumTest() = default;
 };
 
+enum class FlagNames { Flag1 = 0x01, Flag2 = 0x02, Flag3 = 0x04 };
+
+TEST_F(EnumTest, simple_flags) {
+  sled::flags<FlagNames> flag{FlagNames::Flag1};
+
+  EXPECT_EQ(0x01, flag.get());
+
+  flag |= FlagNames::Flag2;
+  EXPECT_EQ(0x03, flag.get());
+}
+
 struct TestEnum final : sled::enum_struct<uint32_t, TestEnum> {
  public:
   static constexpr std::array<name_type, 4> names{
@@ -45,6 +56,13 @@ TEST_F(EnumTest, string_to_enum) {
   EXPECT_EQ(te, TestEnum::V::Value0);
 
   EXPECT_THROW(TestEnum::from_string("Invalid"), sled::ConversionError);
+}
+
+TEST_F(EnumTest, choices) {
+  std::stringstream ss;
+  TestEnum::choices(ss);
+
+  EXPECT_EQ("[Value0, Value1, Value2, Value3]", ss.str());
 }
 
 TEST_F(EnumTest, unknown_enum) {
@@ -119,3 +137,20 @@ TEST_F(EnumTest, flags) {
   EXPECT_EQ(0x01 | 0x02, flags.get());
 }
 
+TEST_F(EnumTest, flags_choices) {
+  std::stringstream ss;
+
+  TestFlags::choices(ss);
+
+  EXPECT_EQ("[Flag1|Flag2|Flag3|Flag4]", ss.str());
+}
+
+TEST_F(EnumTest, flags_from_string) {
+  EXPECT_EQ(0x01, TestFlags::from_string("Flag1").get());
+  EXPECT_EQ(0x03, TestFlags::from_string("Flag1|Flag2").get());
+  EXPECT_EQ(0x05, TestFlags::from_string("Flag3|Flag1").get());
+
+  EXPECT_THROW(TestFlags::from_string("Flg1"), sled::ConversionError);
+
+  EXPECT_EQ(0x00, TestFlags::from_string("").get());
+}
