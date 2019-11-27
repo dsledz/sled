@@ -68,24 +68,6 @@ static inline std::string as_string(const std::string &prefix, const T &obj) {
   return ss.str();
 }
 
-// Recursive function to concat strings
-template <typename H>
-static a_forceinline std::string stringfn(const H &p) { return to_string(p); }
-template <typename H, typename... T>
-std::string stringfn(H const&p, T const &... t) {
-  return to_string(p) + stringfn(t...);
-}
-
-/**
- * Recursively concat types using the << operator.
- */
-static a_forceinline void sstreamfn(std::ostream & /*os*/) {}
-template <typename H, typename... T>
-void sstreamfn(std::ostream &os, H const &p, T const &... t) {
-  os << p;
-  sled::sstreamfn(os, t...);
-}
-
 // From:
 // https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
 // trim from start (in place)

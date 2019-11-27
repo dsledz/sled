@@ -120,12 +120,6 @@ class IntFmt {
     return IntFmt(stoull(obj, nullptr, 0));
   }
 
-  friend a_forceinline std::string to_string(IntFmt const &obj) {
-    std::stringstream os;
-    os << obj;
-    return os.str();
-  }
-
   friend a_forceinline std::string fmt_read(IntFmt const &obj) {
     std::stringstream os;
     os << obj;
@@ -212,12 +206,6 @@ class HexFmt {
   static inline HexFmt from_string(std::string const &obj) {
     // XXX: Pick the correct width.
     return HexFmt(stoull(obj, nullptr, 0));
-  }
-
-  friend a_forceinline std::string to_string(HexFmt const &obj) {
-    std::stringstream os;
-    os << obj;
-    return os.str();
   }
 
   friend a_forceinline std::string fmt_read(HexFmt const &obj) {

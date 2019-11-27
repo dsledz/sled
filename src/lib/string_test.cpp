@@ -44,10 +44,4 @@ TEST_F(StringTest, ends_with_test) {
   EXPECT_FALSE(ends_with("The quick brown fox", "brown"));
 }
 
-TEST_F(StringTest, sstreamfn_test) {
-  std::stringstream ss;
-  sstreamfn(ss, "The ", "quick ", "brown ", "fox");
-  EXPECT_EQ("The quick brown fox", ss.str());
-}
-
 }  // namespace sled

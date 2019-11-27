@@ -5,6 +5,7 @@
  */
 
 #include "sled/bitfield.h"
+#include "sled/fmt.h"
 
 #include "gtest/gtest.h"
 
@@ -43,7 +44,7 @@ TEST_F(BitfieldTest, construct) {
 
   EXPECT_EQ(2, f.b.f1);
 
-  EXPECT_EQ("f1:2, f2:2, f3:2, f4:2", to_string(f));
+  EXPECT_EQ("f1:2, f2:2, f3:2, f4:2", sled::format(f));
 }
 
 struct TestFlags {
@@ -73,11 +74,11 @@ TEST_F(BitfieldTest, with_flags) {
   TestFlagsBitfield f;
   f.b.Z = 1;
   f.b.D = 1;
-  EXPECT_EQ("Z,D", to_string(f));
+  EXPECT_EQ("Z,D", format(f));
 }
 
 TEST_F(BitfieldTest, assignment) {
   TestFlagsBitfield f;
   f = 0x0A;
-  EXPECT_EQ("Z,D", to_string(f));
+  EXPECT_EQ("Z,D", format(f));
 }

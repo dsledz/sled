@@ -62,7 +62,7 @@ struct struct_bitfield {
     return os;
   }
 
-  friend inline std::string to_string(Tag const &rhs) {
+  friend inline std::string fmt_read(Tag const &rhs) {
     std::stringstream ss;
     ss << rhs;
     return ss.str();
@@ -123,7 +123,7 @@ struct flags_bitfield {
     return os;
   }
 
-  friend inline std::string to_string(Tag const &rhs) {
+  friend inline std::string fmt_read(Tag const &rhs) {
     std::stringstream ss;
     ss << rhs;
     return ss.str();

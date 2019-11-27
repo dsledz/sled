@@ -226,12 +226,6 @@ struct enum_struct {
     return os;
   }
 
-  friend a_forceinline std::string to_string(Tag const &obj) {
-    std::stringstream os;
-    os << obj;
-    return os.str();
-  }
-
   /**
    * TODO: This should be in EnumFmt
    */
@@ -342,12 +336,6 @@ class flags_struct {
       }
     }
     return os;
-  }
-
-  friend inline std::string to_string(Tag const &rhs) {
-    std::stringstream ss;
-    ss << rhs;
-    return ss.str();
   }
 
   friend inline std::string fmt_read(Tag const &rhs) {

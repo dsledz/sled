@@ -4,9 +4,10 @@
  * Licensed under BSD-2-Clause license.
  */
 
+#include "sled/fmt.h"
 #include "sled/numeric.h"
-#include "sled/union.h"
 #include "sled/strong_int.h"
+#include "sled/union.h"
 
 #include "gtest/gtest.h"
 
@@ -59,7 +60,7 @@ struct TestUnion final : sled::union_struct<r16_bytes, uint16_t, TestUnion> {
     return os;
   }
 
-  friend inline std::string to_string(TestUnion const &obj) {
+  friend inline std::string fmt_read(TestUnion const &obj) {
     std::stringstream os;
     os << obj;
     return os.str();
@@ -81,5 +82,5 @@ TEST_F(UnionTest, union_struct_assignment) {
 
 TEST_F(UnionTest, union_struct_string) {
   TestUnion tu{0};
-  EXPECT_EQ("0x0000", to_string(tu));
+  EXPECT_EQ("0x0000", sled::format(tu));
 }
