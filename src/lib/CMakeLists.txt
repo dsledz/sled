@@ -12,6 +12,7 @@ add_unit_test(
         crc_test.cpp
         enum_test.cpp
         exception_test.cpp
+        fmt_test.cpp
         numeric_test.cpp
         log_test.cpp
         statistics_test.cpp

@@ -18,7 +18,7 @@ class NumericTest : public ::testing::Test {
 };
 
 TEST_F(NumericTest, nibble_size) {
-  sled::Integer n1{sled::nibble_t{4}};
+  sled::IntFmt n1{sled::nibble_t{4}};
   EXPECT_EQ(4, n1.v);
   EXPECT_EQ(1, n1.w);
 }
@@ -32,7 +32,7 @@ struct sled::__is_wrapped_integer_helper<tag1> : public std::true_type {};
 
 TEST_F(NumericTest, strong_int_tests) {
   using type = tag1;
-  sled::Integer n1{type{100}};
+  sled::IntFmt n1{type{100}};
   EXPECT_EQ(100, n1.v);
   EXPECT_EQ(8, n1.w);
 
@@ -41,7 +41,7 @@ TEST_F(NumericTest, strong_int_tests) {
 
 TEST_F(NumericTest, hex_tests) {
   using type = uint32_t;
-  sled::Hex n1{type{100}};
+  sled::HexFmt n1{type{100}};
   EXPECT_EQ(100, n1.v);
   EXPECT_EQ(8, n1.w);
 
@@ -50,7 +50,7 @@ TEST_F(NumericTest, hex_tests) {
 
 TEST_F(NumericTest, alt_hex_tests) {
   using type = uint32_t;
-  sled::AltHex n1{type{100}};
+  sled::AltHexFmt n1{type{100}};
   EXPECT_EQ(100, n1.v);
   EXPECT_EQ(8, n1.w);
 
@@ -59,7 +59,7 @@ TEST_F(NumericTest, alt_hex_tests) {
 
 TEST_F(NumericTest, MiB_tests) {
   auto mib_test = [](std::string const &lhs, uint64_t rhs) {
-    auto v = sled::AltInteger(rhs, {sled::IntegerFormat::MiB});
+    auto v = sled::AltIntFmt(rhs, {sled::IntegerFormat::MiB});
     EXPECT_EQ(lhs, to_string(v));
   };
   mib_test("1MiB", 1024 * 1024);
@@ -68,7 +68,7 @@ TEST_F(NumericTest, MiB_tests) {
 
 TEST_F(NumericTest, KiB_tests) {
   auto kib_test = [](std::string const &lhs, uint64_t rhs) {
-    auto v = sled::AltInteger(rhs, {sled::IntegerFormat::KiB});
+    auto v = sled::AltIntFmt(rhs, {sled::IntegerFormat::KiB});
     EXPECT_EQ(lhs, to_string(v));
   };
   kib_test("1KiB", 1024);

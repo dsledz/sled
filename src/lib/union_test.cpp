@@ -55,7 +55,7 @@ struct TestUnion final : sled::union_struct<r16_bytes, uint16_t, TestUnion> {
 
   friend inline std::ostream &operator<<(std::ostream &os,
                                          TestUnion const &obj) {
-    os << sled::Hex(obj.v);
+    os << sled::HexFmt(obj.v);
     return os;
   }
 
