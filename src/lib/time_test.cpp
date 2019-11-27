@@ -45,29 +45,29 @@ TEST_F(TimeTest, from) {
 TEST_F(TimeTest, formatter) {
   {
     std::stringstream ss;
-    ss << sled::time(sled::nsec{100});
+    ss << sled::TimeFmt(sled::time(sled::nsec{100}));
     EXPECT_EQ("100ns", ss.str());
   }
   {
     std::stringstream ss;
-    ss << sled::time(sled::usec{100});
+    ss << sled::TimeFmt(sled::time(sled::usec{100}));
     EXPECT_EQ("100us", ss.str());
   }
   {
     std::stringstream ss;
-    ss << sled::time(sled::msec{100});
+    ss << sled::TimeFmt(sled::time(sled::msec{100}));
     EXPECT_EQ("100ms", ss.str());
   }
   {
     std::stringstream ss;
     auto t = sled::time(sled::msec{100});
     t += sled::time(sled::nsec{100});
-    ss << t;
+    ss << sled::TimeFmt(t);
     EXPECT_EQ("100.0ms", ss.str());
   }
   {
     std::stringstream ss;
-    ss << sled::time(sled::sec{100});
+    ss << sled::TimeFmt(sled::time(sled::sec{100}));
     EXPECT_EQ("100s", ss.str());
   }
 }

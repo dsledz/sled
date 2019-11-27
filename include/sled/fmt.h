@@ -5,10 +5,13 @@
  */
 #pragma once
 
+#include "sled/platform.h"
+
 #include <cstdint>
 #include <iomanip>
 #include <memory>
 #include <ostream>
+#include <string>
 #include <type_traits>
 
 namespace sled {
@@ -26,6 +29,7 @@ class fmt {
   // NOLINTNEXTLINE
   fmt(T x) : self_(std::make_shared<model<T> >(std::move(x))) {}
   fmt(std::string x) : self_(std::make_shared<str_model>(std::move(x))) {}
+  fmt(const char *x) : self_(std::make_shared<str_model>(std::string(x))) {}
 
   fmt(const fmt &x) : self_(x.self_->copy_()) {}
   fmt(fmt &&) noexcept = default;
@@ -75,5 +79,26 @@ class fmt {
   };
   std::shared_ptr<const concept_t> self_;
 };
+
+/**
+ * Recursively convert the formatters to a string.
+ */
+static a_forceinline std::string format(const sled::fmt &p) {
+  return fmt_read(p);
+}
+template <typename... T>
+std::string format(const sled::fmt &p, T const &... t) {
+  return fmt_read(p) + sled::format(t...);
+}
+
+/**
+ * Recursively convert the formatters to a string.
+ */
+static a_forceinline void format_os(std::ostream & /*os*/) {}
+template <typename... T>
+void format_os(std::ostream &os, const sled::fmt &p, T const &... t) {
+  os << p;
+  sled::format_os(os, t...);
+}
 
 };  // namespace sled

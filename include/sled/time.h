@@ -77,8 +77,17 @@ struct time final : public StrongInt<int64_t, time> {
     return tmp / v;
   }
 
-  friend std::ostream &operator<<(std::ostream &os, time const &obj) {
-    int64_t ns = obj.v;
+  constexpr inline time operator/(int rhs) noexcept { return time{v / rhs}; }
+};
+
+class TimeFmt {
+ public:
+  explicit constexpr TimeFmt(time arg) : t(arg) {}
+
+  time t;
+
+  friend inline std::ostream &operator<<(std::ostream &os, TimeFmt const &obj) {
+    int64_t ns = obj.t.v;
     if (ns < 0) {
       os << "-";
       ns = -ns;
@@ -110,14 +119,11 @@ struct time final : public StrongInt<int64_t, time> {
     return os;
   }
 
-  friend inline std::string to_string(time const &obj) {
-    std::stringstream ss;
-    ss << obj;
-    return ss.str();
+  friend a_forceinline std::string fmt_read(TimeFmt const &obj) {
+    std::stringstream os;
+    os << obj;
+    return os.str();
   }
-
-  constexpr inline time operator/(int rhs) noexcept { return time{v / rhs}; }
-
 };
 
 static constexpr time time_zero{nsec{0}};

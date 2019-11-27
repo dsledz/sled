@@ -125,6 +125,12 @@ class IntFmt {
     os << obj;
     return os.str();
   }
+
+  friend a_forceinline std::string fmt_read(IntFmt const &obj) {
+    std::stringstream os;
+    os << obj;
+    return os.str();
+  }
 };
 
 template <class T>
@@ -209,6 +215,12 @@ class HexFmt {
   }
 
   friend a_forceinline std::string to_string(HexFmt const &obj) {
+    std::stringstream os;
+    os << obj;
+    return os.str();
+  }
+
+  friend a_forceinline std::string fmt_read(HexFmt const &obj) {
     std::stringstream os;
     os << obj;
     return os.str();

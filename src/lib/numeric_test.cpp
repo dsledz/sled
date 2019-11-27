@@ -4,6 +4,7 @@
  * Licensed under BSD-2-Clause license.
  */
 
+#include "sled/fmt.h"
 #include "sled/numeric.h"
 #include "sled/strong_int.h"
 
@@ -36,7 +37,14 @@ TEST_F(NumericTest, strong_int_tests) {
   EXPECT_EQ(100, n1.v);
   EXPECT_EQ(8, n1.w);
 
-  EXPECT_EQ("100", to_string(n1));
+  EXPECT_EQ("100", sled::format(n1));
+}
+
+TEST_F(NumericTest, hex_fmt) {
+  using type = uint8_t;
+  sled::HexFmt n1{type{100}};
+  EXPECT_EQ(100, n1.v);
+  EXPECT_EQ(2, n1.w);
 }
 
 TEST_F(NumericTest, hex_tests) {
@@ -45,7 +53,7 @@ TEST_F(NumericTest, hex_tests) {
   EXPECT_EQ(100, n1.v);
   EXPECT_EQ(8, n1.w);
 
-  EXPECT_EQ("0x00000064", to_string(n1));
+  EXPECT_EQ("0x00000064", sled::format(n1));
 }
 
 TEST_F(NumericTest, alt_hex_tests) {
@@ -54,13 +62,13 @@ TEST_F(NumericTest, alt_hex_tests) {
   EXPECT_EQ(100, n1.v);
   EXPECT_EQ(8, n1.w);
 
-  EXPECT_EQ("$00000064", to_string(n1));
+  EXPECT_EQ("$00000064", sled::format(n1));
 }
 
 TEST_F(NumericTest, MiB_tests) {
   auto mib_test = [](std::string const &lhs, uint64_t rhs) {
     auto v = sled::IntFmt(rhs, {sled::IntegerFormat::MiB});
-    EXPECT_EQ(lhs, to_string(v));
+    EXPECT_EQ(lhs, sled::format(v));
   };
   mib_test("1MiB", 1024 * 1024);
   mib_test("1.0MiB", 1024 * 1024 + 1);
@@ -69,7 +77,7 @@ TEST_F(NumericTest, MiB_tests) {
 TEST_F(NumericTest, KiB_tests) {
   auto kib_test = [](std::string const &lhs, uint64_t rhs) {
     auto v = sled::IntFmt(rhs, {sled::IntegerFormat::KiB});
-    EXPECT_EQ(lhs, to_string(v));
+    EXPECT_EQ(lhs, sled::format(v));
   };
   kib_test("1KiB", 1024);
   kib_test("1.0KiB", 1024 + 1);

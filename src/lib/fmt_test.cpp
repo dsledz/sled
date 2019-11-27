@@ -55,3 +55,27 @@ TEST_F(FmtTest, string_cast) {
 
   EXPECT_EQ("1234", fn(sled::fmt(TestIntFmt(1234))));
 }
+
+TEST_F(FmtTest, format_fn) {
+  EXPECT_EQ("1234", sled::format(TestIntFmt(1234)));
+  EXPECT_EQ("1234", sled::format(std::string("1234")));
+  EXPECT_EQ("1234", sled::format("1234"));
+}
+
+TEST_F(FmtTest, format_string) {
+  EXPECT_EQ("Hello, world C-137.",
+            sled::format("Hello, world C", TestIntFmt(-137), "."));
+}
+
+TEST_F(FmtTest, format_os) {
+  std::stringstream ss;
+  sled::format_os(ss, "Hello, world C", TestIntFmt(-137), ".");
+  EXPECT_EQ("Hello, world C-137.", ss.str());
+}
+
+#ifdef COMPILE_ERROR
+TEST_F(FmtTest, format_compile_error) {
+  // No conversion between int and sled::fmt
+  EXPECT_EQ("1234", sled::format(1234));
+}
+#endif

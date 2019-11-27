@@ -12,8 +12,10 @@
 #include <string>
 #include <utility>
 
-#include "sled/platform.h"
 #include "sled/exception.h"
+#include "sled/fmt.h"
+#include "sled/numeric.h"
+#include "sled/platform.h"
 
 extern "C" {
 #include "lua53/lauxlib.h"
@@ -323,7 +325,7 @@ inline std::string LuaSupport::call_and_return<std::string>(
     result = "<nil>";
   } else if (lua_isnumber(lua, top) != 0) {
     auto ret = static_cast<int>(lua_tointeger(lua, top));
-    result = std::to_string(ret);
+    result = sled::format(sled::IntFmt(ret));
   } else if (lua_isstring(lua, top) != 0) {
     const char *ret = lua_tostring(lua, top);
     result = std::string(ret);
