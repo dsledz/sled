@@ -53,58 +53,6 @@ constexpr int wrapped_integer_width<nibble_t>(nibble_t const &arg) {
 }
 
 /**
- * An IntFmt is a fixed width representation of an unsigned number.  Used as an
- * interchange and formating type.
- */
-class IntFmt {
- public:
-  template <typename T,
-            class = typename std::enable_if_t<is_wrapped_integer<T>::value>>
-  explicit constexpr IntFmt(T arg, T /*unused*/ = {})
-      : v(arg.v), w(wrapped_integer_width(arg)) {}
-  template <typename I,
-            class = typename std::enable_if_t<std::is_integral<I>::value>>
-  explicit constexpr IntFmt(I arg) : v(arg), w(sizeof(I) * 2) {}
-  template <typename T,
-            class = typename std::enable_if_t<std::is_enum<T>::value>>
-  explicit constexpr IntFmt(
-      T arg, typename std::underlying_type<T>::type /*unused*/ = 0)
-      : v(static_cast<typename std::underlying_type<T>::type>(arg)),
-        w(sizeof(typename std::underlying_type<T>) * 2) {}
-  uint64_t v;
-  int w;
-
-  friend inline std::ostream &operator<<(std::ostream &os, IntFmt const &obj) {
-    auto f = os.flags();
-    os << std::dec << obj.v;
-    os.flags(f);
-    return os;
-  }
-
-  static inline IntFmt from_string(std::string const &obj) {
-    // XXX: Pick the correct width.
-    return IntFmt(stoull(obj, nullptr, 0));
-  }
-
-  friend a_forceinline std::string to_string(IntFmt const &obj) {
-    std::stringstream os;
-    os << obj;
-    return os.str();
-  }
-};
-
-template <class T>
-inline T from_integer(const IntFmt &integer) {
-  if constexpr (std::is_integral<T>::value || std::is_enum<T>::value) {
-    return static_cast<T>(integer.v);
-  } else if constexpr (sled::is_wrapped_integer<T>::value) {
-    return T(integer.v);
-  }
-  // XXX: This should be a compile time error.
-  throw sled::ConversionError("integer", "integer conversion not supported");
-}
-
-/**
  * IntFmt IntFmt formatting flags.
  */
 enum class IntegerFormat {
@@ -115,32 +63,30 @@ enum class IntegerFormat {
 /**
  * Alternative representation of a hex number, e.g. $BEEF.
  */
-class AltIntFmt {
+class IntFmt {
  public:
   using Flags = sled::flags<IntegerFormat>;
   template <typename T,
             class = typename std::enable_if<is_wrapped_integer<T>::value>::type>
-  explicit constexpr AltIntFmt(T arg, Flags flags = Flags{}, T /*unused*/ = {})
+  explicit constexpr IntFmt(T arg, Flags flags = Flags{}, T /*unused*/ = {})
       : v(arg.v), w(wrapped_integer_width(arg)), flags{flags} {}
   template <typename I,
             class = typename std::enable_if<std::is_integral<I>::value>::type>
-  explicit constexpr AltIntFmt(I arg, Flags flags = Flags{})
+  explicit constexpr IntFmt(I arg, Flags flags = Flags{})
       : v(arg), w(sizeof(I) * 2), flags{flags} {}
   template <typename T,
             class = typename std::enable_if<std::is_enum<T>::value>::type>
-  explicit constexpr AltIntFmt(
+  explicit constexpr IntFmt(
       T arg, Flags flags = Flags{},
       typename std::underlying_type<T>::type /*unused*/ = 0)
       : v(static_cast<typename std::underlying_type<T>::type>(arg)),
         w(sizeof(typename std::underlying_type<T>) * 2),
         flags{flags} {}
-  explicit constexpr AltIntFmt(IntFmt i) : v(i.v), w(i.w) {}
   uint64_t v;
   int w;
   Flags flags{};
 
-  friend inline std::ostream &operator<<(std::ostream &os,
-                                         AltIntFmt const &obj) {
+  friend inline std::ostream &operator<<(std::ostream &os, IntFmt const &obj) {
     auto f = os.flags();
     if (obj.flags.is_set(IntegerFormat::KiB)) {
       static constexpr uint64_t KiB_size = 1024;
@@ -169,50 +115,66 @@ class AltIntFmt {
     return os;
   }
 
-  static inline AltIntFmt from_string(std::string const &obj) {
+  static inline IntFmt from_string(std::string const &obj) {
     // XXX: Pick the correct width.
-    return AltIntFmt(stoull(obj, nullptr, 0));
+    return IntFmt(stoull(obj, nullptr, 0));
   }
 
-  friend a_forceinline std::string to_string(AltIntFmt const &obj) {
+  friend a_forceinline std::string to_string(IntFmt const &obj) {
     std::stringstream os;
     os << obj;
     return os.str();
   }
 };
 
+template <class T>
+inline T from_integer(const IntFmt &integer) {
+  if constexpr (std::is_integral<T>::value || std::is_enum<T>::value) {
+    return static_cast<T>(integer.v);
+  } else if constexpr (sled::is_wrapped_integer<T>::value) {
+    return T(integer.v);
+  }
+  // XXX: This should be a compile time error.
+  throw sled::ConversionError("integer", "integer conversion not supported");
+}
+
 /**
- * HexFmt IntFmt formatting flags.
+ * HexFmt formatting flags.
  */
 enum class HexFormat {
-  NoPrefix = 0x01,
-  NoPadding = 0x02,
+  AltPrefix = 0x01,
+  NoPrefix = 0x02,
+  NoPadding = 0x04,
 };
 
 /**
- * Standard representation of a hex number, 0xBEEF
+ * Standard representation of a number in hex.
  */
 class HexFmt {
  public:
+  using Flags = sled::flags<HexFormat>;
   template <typename T,
             class = typename std::enable_if<is_wrapped_integer<T>::value>::type>
-  explicit constexpr HexFmt(T arg, T /*unused*/ = {})
-      : v(arg.v), w(wrapped_integer_width(arg)) {}
+  explicit constexpr HexFmt(T arg, Flags flags = Flags{}, T /*unused*/ = {})
+      : v(arg.v), w(wrapped_integer_width(arg)), flags{flags} {}
   template <typename I,
             class = typename std::enable_if<std::is_integral<I>::value>::type>
-  explicit constexpr HexFmt(I arg) : v(arg), w(sizeof(I) * 2) {}
+  explicit constexpr HexFmt(I arg, Flags flags = Flags{})
+      : v(arg), w(sizeof(I) * 2), flags{flags} {}
   template <typename T,
             class = typename std::enable_if<std::is_enum<T>::value>::type>
   explicit constexpr HexFmt(
-      T arg, typename std::underlying_type<T>::type /*unused*/ = 0)
+      T arg, Flags flags = Flags{},
+      typename std::underlying_type<T>::type /*unused*/ = 0)
       : v(static_cast<typename std::underlying_type<T>::type>(arg)),
-        w(sizeof(typename std::underlying_type<T>) * 2) {}
-  explicit constexpr HexFmt(std::byte b)
-      : v(std::to_integer<uint64_t>(b)), w(2) {}
+        w(sizeof(typename std::underlying_type<T>) * 2),
+        flags{flags} {}
+  explicit constexpr HexFmt(std::byte b, Flags flags = Flags{})
+      : v(std::to_integer<uint64_t>(b)), w(2), flags{flags} {}
   explicit constexpr HexFmt(IntFmt i) : v(i.v), w(i.w) {}
   uint64_t v;
   int w;
-  int flags{0};
+  Flags flags{0};
 
   constexpr bool operator==(HexFmt const &rhs) { return v == rhs.v; }
 
@@ -220,11 +182,19 @@ class HexFmt {
 
   friend inline std::ostream &operator<<(std::ostream &os, HexFmt const &obj) {
     auto f = os.flags();
-    if (obj.flags == 0) {
-      os << "0x";
+    if (obj.flags.is_clear(HexFormat::NoPrefix)) {
+      if (obj.flags.is_clear(HexFormat::AltPrefix)) {
+        os << "0x";
+      } else {
+        os << "$";
+      }
     }
-    os << std::hex << std::setfill('0') << std::right << std::setw(obj.w)
-       << obj.v << std::dec;
+    if (obj.flags.is_clear(HexFormat::NoPadding)) {
+      os << std::setfill('0');
+      os << std::right;
+      os << std::setw(obj.w);
+    }
+    os << std::hex << std::uppercase << std::right << obj.v;
     os.flags(f);
     return os;
   }
@@ -239,62 +209,6 @@ class HexFmt {
   }
 
   friend a_forceinline std::string to_string(HexFmt const &obj) {
-    std::stringstream os;
-    os << obj;
-    return os.str();
-  }
-};
-
-/**
- * Alternative representation of a hex number, e.g. $BEEF.
- */
-class AltHexFmt {
- public:
-  using Flags = sled::flags<HexFormat>;
-  template <typename T,
-            class = typename std::enable_if<is_wrapped_integer<T>::value>::type>
-  explicit constexpr AltHexFmt(T arg, Flags flags = Flags{}, T /*unused*/ = {})
-      : v(arg.v), w(wrapped_integer_width(arg)), flags{flags} {}
-  template <typename I,
-            class = typename std::enable_if<std::is_integral<I>::value>::type>
-  explicit constexpr AltHexFmt(I arg, Flags flags = Flags{})
-      : v(arg), w(sizeof(I) * 2), flags{flags} {}
-  template <typename T,
-            class = typename std::enable_if<std::is_enum<T>::value>::type>
-  explicit constexpr AltHexFmt(
-      T arg, Flags flags = Flags{},
-      typename std::underlying_type<T>::type /*unused*/ = 0)
-      : v(static_cast<typename std::underlying_type<T>::type>(arg)),
-        w(sizeof(typename std::underlying_type<T>) * 2),
-        flags{flags} {}
-  explicit constexpr AltHexFmt(std::byte b, Flags flags = Flags{})
-      : v(std::to_integer<uint64_t>(b)), w(2), flags{flags} {}
-  explicit constexpr AltHexFmt(IntFmt i) : v(i.v), w(i.w) {}
-  uint64_t v;
-  int w;
-  Flags flags{};
-
-  friend inline std::ostream &operator<<(std::ostream &os,
-                                         AltHexFmt const &obj) {
-    auto f = os.flags();
-    if (obj.flags.is_clear(HexFormat::NoPrefix)) {
-      os << "$";
-    }
-    if (obj.flags.is_clear(HexFormat::NoPadding)) {
-      os << std::setfill('0');
-      os << std::setw(obj.w);
-    }
-    os << std::hex << std::uppercase << std::right << obj.v;
-    os.flags(f);
-    return os;
-  }
-
-  static inline AltHexFmt from_string(std::string const &obj) {
-    // XXX: Pick the correct width.
-    return AltHexFmt(stoull(obj, nullptr, 0));
-  }
-
-  friend a_forceinline std::string to_string(AltHexFmt const &obj) {
     std::stringstream os;
     os << obj;
     return os.str();

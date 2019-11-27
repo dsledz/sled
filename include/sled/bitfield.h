@@ -55,7 +55,7 @@ struct struct_bitfield {
       } else {
         os << ", ";
       }
-      AltHexFmt h(p, {HexFormat::NoPrefix, HexFormat::NoPadding});
+      HexFmt h(p, {HexFormat::NoPrefix, HexFormat::NoPadding});
       h.w = ((field.h - field.l) + 4) / 4;
       os << field.label << ":" << h;
     }

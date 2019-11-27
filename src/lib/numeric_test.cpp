@@ -50,7 +50,7 @@ TEST_F(NumericTest, hex_tests) {
 
 TEST_F(NumericTest, alt_hex_tests) {
   using type = uint32_t;
-  sled::AltHexFmt n1{type{100}};
+  sled::HexFmt n1{type{100}, {sled::HexFormat::AltPrefix}};
   EXPECT_EQ(100, n1.v);
   EXPECT_EQ(8, n1.w);
 
@@ -59,7 +59,7 @@ TEST_F(NumericTest, alt_hex_tests) {
 
 TEST_F(NumericTest, MiB_tests) {
   auto mib_test = [](std::string const &lhs, uint64_t rhs) {
-    auto v = sled::AltIntFmt(rhs, {sled::IntegerFormat::MiB});
+    auto v = sled::IntFmt(rhs, {sled::IntegerFormat::MiB});
     EXPECT_EQ(lhs, to_string(v));
   };
   mib_test("1MiB", 1024 * 1024);
@@ -68,7 +68,7 @@ TEST_F(NumericTest, MiB_tests) {
 
 TEST_F(NumericTest, KiB_tests) {
   auto kib_test = [](std::string const &lhs, uint64_t rhs) {
-    auto v = sled::AltIntFmt(rhs, {sled::IntegerFormat::KiB});
+    auto v = sled::IntFmt(rhs, {sled::IntegerFormat::KiB});
     EXPECT_EQ(lhs, to_string(v));
   };
   kib_test("1KiB", 1024);
