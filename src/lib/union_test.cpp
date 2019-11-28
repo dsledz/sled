@@ -60,7 +60,7 @@ struct TestUnion final : sled::union_struct<r16_bytes, uint16_t, TestUnion> {
     return os;
   }
 
-  friend inline std::string fmt_read(TestUnion const &obj) {
+  friend inline std::string fmt_string(TestUnion const &obj) {
     std::stringstream os;
     os << obj;
     return os.str();

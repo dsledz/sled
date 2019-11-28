@@ -119,7 +119,7 @@ class TimeFmt {
     return os;
   }
 
-  friend a_forceinline std::string fmt_read(TimeFmt const &obj) {
+  friend a_forceinline std::string fmt_string(TimeFmt const &obj) {
     std::stringstream os;
     os << obj;
     return os.str();

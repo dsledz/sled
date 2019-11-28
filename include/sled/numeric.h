@@ -120,7 +120,7 @@ class IntFmt {
     return IntFmt(stoull(obj, nullptr, 0));
   }
 
-  friend a_forceinline std::string fmt_read(IntFmt const &obj) {
+  friend a_forceinline std::string fmt_string(IntFmt const &obj) {
     std::stringstream os;
     os << obj;
     return os.str();
@@ -208,7 +208,7 @@ class HexFmt {
     return HexFmt(stoull(obj, nullptr, 0));
   }
 
-  friend a_forceinline std::string fmt_read(HexFmt const &obj) {
+  friend a_forceinline std::string fmt_string(HexFmt const &obj) {
     std::stringstream os;
     os << obj;
     return os.str();

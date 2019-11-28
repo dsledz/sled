@@ -22,7 +22,7 @@ struct TestIntFmt {
 
   int v_{0};
 
-  friend std::string fmt_read(const TestIntFmt &x) {
+  friend std::string fmt_string(const TestIntFmt &x) {
     std::stringstream ss;
     ss << x.v_;
     return ss.str();
@@ -35,8 +35,8 @@ struct TestIntFmt {
 };
 
 TEST_F(FmtTest, format_wrappers) {
-  sled::fmt f(TestIntFmt(1234));
-  auto fn = [](const sled::fmt &fmt) -> std::string { return fmt_read(fmt); };
+  sled::fmt_obj f(TestIntFmt(1234));
+  auto fn = [](const sled::fmt_obj &fmt) -> std::string { return fmt_string(fmt); };
 
   EXPECT_EQ("1234", fn(f));
   EXPECT_EQ("1234", fn(TestIntFmt(1234)));
@@ -53,7 +53,7 @@ TEST_F(FmtTest, ostream_wrappers) {
 TEST_F(FmtTest, string_cast) {
   auto fn = [](const std::string &x) -> std::string { return x; };
 
-  EXPECT_EQ("1234", fn(sled::fmt(TestIntFmt(1234))));
+  EXPECT_EQ("1234", fn(sled::fmt_obj(TestIntFmt(1234))));
 }
 
 TEST_F(FmtTest, format_fn) {

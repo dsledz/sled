@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include "sled/fmt.h"
 #include "sled/platform.h"
 
 namespace sled {
