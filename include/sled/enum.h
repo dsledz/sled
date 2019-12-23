@@ -6,6 +6,7 @@
 #pragma once
 
 #include "sled/exception.h"
+#include "sled/fmt.h"
 #include "sled/platform.h"
 #include "sled/string.h"
 
@@ -189,18 +190,6 @@ struct enum_struct {
     return v != rhs.v;
   }
 
-  friend inline std::ostream &operator<<(std::ostream &os,
-                                         enum_struct const &e) {
-    for (auto &name : our_type::names) {
-      if (name.first == e.v) {
-        os << name.second;
-        return os;
-      }
-    }
-    os << "Invalid<" << (int)e.v << ">";
-    return os;
-  }
-
   static inline Tag from_string(std::string const &obj) {
     // TODO(dan): rework this function so it can be constexpr
     for (auto &name : our_type::names) {
@@ -226,14 +215,45 @@ struct enum_struct {
     return os;
   }
 
+  struct enum_struct_fmt {
+    explicit constexpr enum_struct_fmt(const Tag &e) : e_(e) {}
+    const Tag &e_;
+
+    friend inline std::ostream &operator<<(std::ostream &os,
+                                           const enum_struct_fmt &obj) {
+      auto &e = obj.e_;
+      for (auto &name : our_type::names) {
+        if (name.first == e.v) {
+          os << name.second;
+          return os;
+        }
+      }
+      os << "Invalid<" << (int)e.v << ">";
+      return os;
+    }
+
+    friend inline std::string fmt_string(const enum_struct_fmt &obj) {
+      std::stringstream os;
+      os << obj;
+      return os.str();
+    }
+  };
+
   /**
-   * TODO: This should be in EnumFmt
+   * Format the enum for printing.
    */
-  friend a_forceinline std::string fmt_string(Tag const &obj) {
-    std::stringstream os;
-    os << obj;
-    return os.str();
+  enum_struct_fmt fmt() const {
+    auto &t = static_cast<const Tag &>(*this);
+    return enum_struct_fmt{t};
   }
+
+  friend inline std::ostream &operator<<(std::ostream &os,
+                                         const enum_struct &t) {
+    os << t.fmt();
+    return os;
+  }
+
+  a_forceinline operator fmt_obj() noexcept { return fmt_obj{fmt()}; }
 };
 
 /**
@@ -320,30 +340,6 @@ class flags_struct {
     return lhs.v == rhs.v;
   }
 
-  friend inline std::ostream &operator<<(std::ostream &os, Tag const &rhs) {
-    bool first = true;
-    for (auto &name : T::our_type::names) {
-      if (__builtin_popcount(name.first) != 1) {
-        continue;
-      }
-      if ((name.first & rhs.v) != 0) {
-        if (first) {
-          first = false;
-        } else {
-          os << " | ";
-        }
-        os << name.second;
-      }
-    }
-    return os;
-  }
-
-  friend inline std::string fmt_string(Tag const &rhs) {
-    std::stringstream ss;
-    ss << rhs;
-    return ss.str();
-  }
-
   static inline Tag from_string(std::string const &obj) {
     Tag value{};
     int last = 0;
@@ -383,6 +379,47 @@ class flags_struct {
       os << name.second;
     }
     os << "]";
+    return os;
+  }
+
+  struct flags_struct_fmt {
+    explicit constexpr flags_struct_fmt(const Tag &f) : f_(f) {}
+    const Tag &f_;
+
+    friend inline std::ostream &operator<<(std::ostream &os,
+                                           const flags_struct_fmt &obj) {
+      auto &rhs = obj.f_;
+      bool first = true;
+      for (auto &name : T::our_type::names) {
+        if (__builtin_popcount(name.first) != 1) {
+          continue;
+        }
+        if ((name.first & rhs.v) != 0) {
+          if (first) {
+            first = false;
+          } else {
+            os << " | ";
+          }
+          os << name.second;
+        }
+      }
+      return os;
+    }
+
+    friend inline std::string fmt_string(const flags_struct_fmt &obj) {
+      std::stringstream os;
+      os << obj;
+      return os.str();
+    }
+  };
+
+  flags_struct_fmt fmt() const {
+    auto &t = static_cast<const Tag &>(*this);
+    return flags_struct_fmt{t};
+  }
+
+  friend inline std::ostream &operator<<(std::ostream &os, Tag const &rhs) {
+    os << rhs.fmt();
     return os;
   }
 

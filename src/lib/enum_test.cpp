@@ -42,6 +42,8 @@ struct TestEnum::V {
   static constexpr TestEnum Value3{3};
 };
 
+// The following should fail because operator<< for Tag is deleted.
+#ifdef COMPILE_ERROR
 TEST_F(EnumTest, named_enum) {
   std::stringstream ss;
   TestEnum te{TestEnum::V::Value0};
@@ -49,6 +51,23 @@ TEST_F(EnumTest, named_enum) {
   ss << te;
 
   EXPECT_EQ("Value0", ss.str());
+}
+#endif
+
+TEST_F(EnumTest, named_enum) {
+  std::stringstream ss;
+  TestEnum te{TestEnum::V::Value0};
+
+  ss << te.fmt();
+
+  EXPECT_EQ("Value0", ss.str());
+}
+
+TEST_F(EnumTest, auto_fmt) {
+  TestEnum te{TestEnum::V::Value0};
+  auto f = sled::format(te);
+
+  EXPECT_EQ("Value0", f);
 }
 
 TEST_F(EnumTest, string_to_enum) {
@@ -69,7 +88,7 @@ TEST_F(EnumTest, unknown_enum) {
   std::stringstream ss;
   TestEnum te{100};
 
-  ss << te;
+  ss << te.fmt();
 
   EXPECT_EQ("Invalid<100>", ss.str());
 }
@@ -100,7 +119,7 @@ TEST_F(EnumTest, iterate) {
   int count = 0;
   std::stringstream ss;
   for (auto t : TestEnum{}) {
-    ss << t;
+    ss << t.fmt();
     count++;
   }
   EXPECT_EQ(4, count);

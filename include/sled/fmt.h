@@ -94,7 +94,9 @@ std::string format(const sled::fmt_obj &p, T const &... t) {
 /**
  * Recursively convert the formatters to a string.
  */
-static a_forceinline void format_os(std::ostream & /*os*/) {}
+static a_forceinline void format_os(std::ostream &os, const sled::fmt_obj &p) {
+  os << p;
+}
 template <typename... T>
 void format_os(std::ostream &os, const sled::fmt_obj &p, T const &... t) {
   os << p;

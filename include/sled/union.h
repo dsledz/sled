@@ -82,6 +82,38 @@ struct union_struct {
     T b;
     B v;
   };
+
+  struct union_struct_fmt {
+    explicit constexpr union_struct_fmt(const Tag &u) : u_(u) {}
+    const Tag &u_;
+
+    friend inline std::ostream &operator<<(std::ostream &os,
+                                           const union_struct_fmt &obj) {
+      os << sled::HexFmt(obj.u_.v);
+      return os;
+    }
+
+    friend inline std::string fmt_string(const union_struct_fmt &obj) {
+      std::stringstream os;
+      os << obj;
+      return os.str();
+    }
+  };
+
+  /**
+   * Format the union for printing.
+   */
+  union_struct_fmt fmt() const {
+    auto &t = static_cast<const Tag &>(*this);
+    return union_struct_fmt{t};
+  }
+
+  friend inline std::ostream &operator<<(std::ostream &os, const Tag &t) {
+    os << t.fmt();
+    return os;
+  }
+
+  a_forceinline operator fmt_obj() noexcept { return fmt_obj{fmt()}; }
 };
 
 }  // namespace sled

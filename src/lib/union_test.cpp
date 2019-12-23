@@ -52,19 +52,7 @@ struct r16_bytes {
 };
 
 struct TestUnion final : sled::union_struct<r16_bytes, uint16_t, TestUnion> {
-  using sled::union_struct<r16_bytes, uint16_t, TestUnion>::union_struct;
-
-  friend inline std::ostream &operator<<(std::ostream &os,
-                                         TestUnion const &obj) {
-    os << sled::HexFmt(obj.v);
-    return os;
-  }
-
-  friend inline std::string fmt_string(TestUnion const &obj) {
-    std::stringstream os;
-    os << obj;
-    return os.str();
-  }
+  using union_struct::union_struct;
 };
 
 TEST_F(UnionTest, union_struct) {
@@ -82,5 +70,5 @@ TEST_F(UnionTest, union_struct_assignment) {
 
 TEST_F(UnionTest, union_struct_string) {
   TestUnion tu{0};
-  EXPECT_EQ("0x0000", sled::format(tu));
+  EXPECT_EQ("0x0000", sled::format(tu.fmt()));
 }
