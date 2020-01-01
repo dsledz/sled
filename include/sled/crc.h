@@ -86,4 +86,11 @@ static inline crc32c calculate_crc32c(uint8_t const *begin, uint8_t const *end,
   return crc32c{crc};
 }
 
+static inline crc32c calculate_crc32c(std::string val,
+                                      crc32c initial = crc32c{0}) {
+  auto begin = reinterpret_cast<const uint8_t *>(&val.front());
+  auto end = reinterpret_cast<const uint8_t *>(&val.back() + 1);
+  return calculate_crc32c(begin, end, initial);
+}
+
 };  // namespace sled
