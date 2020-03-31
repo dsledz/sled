@@ -229,6 +229,15 @@ T *safe_cast(B *b) {
 }
 #endif
 
+/**
+ * XXX: temp fix until std::bit_cast is available.
+ */
+static inline long long bit_cast(unsigned long b) {
+  long long t{0};
+  memcpy(&t, &b, sizeof(t));
+  return t;
+}
+
 #ifdef WIN32
 static inline constexpr uint16_t htobe16(uint16_t host_16bits);
 static inline constexpr uint16_t htole16(uint16_t host_16bits);

@@ -37,7 +37,7 @@ int open_file::read_into(std::byte *data, int size) {
   return r;
 }
 
-int open_file::pread_into(std::byte *data, int size, int offset) {
+int open_file::pread_into(std::byte *data, int size, off_t offset) {
   int r = ::pread(fd_.fd_, data, size, offset);
   // XXX: handle errors/short reads
   return r;

@@ -83,8 +83,8 @@ namespace detail
 	struct functor_padding
 	{
 	protected:
-		size_t padding_first;
-		size_t padding_second;
+		size_t padding_first{0};
+		size_t padding_second{0};
 	};
 
 	struct empty_struct

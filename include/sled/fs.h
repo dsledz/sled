@@ -75,28 +75,28 @@ class open_file {
   }
 
   template <size_t SIZE>
-  int pread_into(std::array<uint8_t, SIZE> &dest, int offset) {
+  int pread_into(std::array<uint8_t, SIZE> &dest, off_t offset) {
     return pread_into(reinterpret_cast<std::byte *>(dest.data()), dest.size(),
                       offset);
   }
 
   template <size_t SIZE>
-  int pread_into(std::array<std::byte, SIZE> &dest, int offset) {
+  int pread_into(std::array<std::byte, SIZE> &dest, off_t offset) {
     return pread_into(dest.data(), dest.size(), offset);
   }
 
   template <typename T>
-  int pread_into(std::vector<T> &dest, int offset) {
+  int pread_into(std::vector<T> &dest, off_t offset) {
     return pread_into(reinterpret_cast<std::byte *>(dest.data()),
                       dest.size() * sizeof(T), offset);
   }
 
   template <typename T>
-  int pread_into(T &t, int offset) {
+  int pread_into(T &t, off_t offset) {
     return pread_into(reinterpret_cast<std::byte *>(&t), sizeof(t), offset);
   }
 
-  int pread_into(std::byte *data, int size, int offset);
+  int pread_into(std::byte *data, int size, off_t offset);
 
  private:
   fd fd_{};

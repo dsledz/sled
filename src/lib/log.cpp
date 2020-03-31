@@ -31,7 +31,6 @@ void LoggingManager::set_default_sink(Sink sink) { default_sink_ = sink; }
 void LoggingManager::increase_threshold() {
   switch (threshold_sev_) {
     case sled::log::Severity::V::Inherited:
-      break;
     case sled::log::Severity::V::Trace:
       break;
     case sled::log::Severity::V::Debug:
