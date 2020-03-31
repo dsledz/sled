@@ -54,7 +54,7 @@ struct MockExecutor : public sled::executor::Executor {
 
   template <typename Fn>
   task_t<Fn> create_task(Fn &&fn) {
-    return task_t<Fn>(this, std::move(fn));
+    return task_t<Fn>(this, std::forward<Fn>(fn));
   }
 
   sled::executor::Task *adopt_thread() final;

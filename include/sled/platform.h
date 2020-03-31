@@ -20,6 +20,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #ifndef WIN32
@@ -220,7 +221,7 @@ template <
     class = typename std::enable_if_t<std::__and_<
         std::is_trivially_copyable<T>, std::is_trivially_copyable<B> >::value> >
 T *safe_cast(B *b) {
-  std::aligned_storage<sizeof(T), alignof(T)> s;
+  typename std::aligned_storage<sizeof(T), alignof(T)>::type s;
   std::memcpy(&s, b, sizeof(T));
   auto f = new (b) T;
   std::memcpy(f, &s, sizeof(T));
