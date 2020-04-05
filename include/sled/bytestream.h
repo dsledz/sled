@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include "sled/numeric.h"
 #include "sled/platform.h"
 
 #include <cstddef>
@@ -224,6 +225,39 @@ class bytestream {
     return vb;
   }
 
+  int bits_read(int num_bits) {
+    variable_bits vb;
+    vb.w = num_bits;
+    if (overflow_ || (offset_ + num_bits > (size() * 8))) {
+      overflow_ = true;
+      return 0;
+    }
+    be_bits_pread_into(vb, num_bits, offset_);
+    offset_ += num_bits;
+    return vb.v;
+  }
+
+  bool overflow() { return overflow_; }
+
+  int bits_peek(int num_bits) {
+    variable_bits vb;
+    vb.w = num_bits;
+    if (overflow_ || (offset_ + num_bits > (size() * 8))) {
+      overflow_ = true;
+      return 0;
+    }
+    be_bits_pread_into(vb, num_bits, offset_);
+    return vb.v;
+  }
+
+  void bits_skip(int num_bits) {
+    if (overflow_ || (offset_ + num_bits > (size() * 8))) {
+      overflow_ = true;
+      return;
+    }
+    offset_ += num_bits;
+  }
+
  private:
   template <typename T>
   void be_bits_pread_into(T &bits, int num_bits, int offset) {
@@ -249,6 +283,8 @@ class bytestream {
 
   std::byte *begin_{nullptr};
   std::byte *end_{nullptr};
+  int offset_{0};
+  bool overflow_{false};
 };
 
 /**
@@ -360,6 +396,35 @@ class fixed_bytestream {
  private:
   std::array<std::byte, SIZE> data_{};
   bytestream bs_;
+};
+
+class ByteArrayFmt {
+ public:
+  template <typename T>
+  ByteArrayFmt(T *begin, T *end) : begin(begin), end(end) {}
+
+  friend inline std::ostream &operator<<(std::ostream &os,
+                                         ByteArrayFmt const &obj) {
+    bool first = true;
+    os << "<";
+    for (const std::byte *it = obj.begin; it != obj.end; it++, first = false) {
+      if (!first) {
+        os << ",";
+      }
+      os << sled::HexFmt(*it);
+    }
+    os << ">";
+    return os;
+  }
+
+  friend inline std::string fmt_string(ByteArrayFmt const &obj) {
+    std::stringstream os;
+    os << obj;
+    return os.str();
+  }
+
+  const std::byte *begin{nullptr};
+  const std::byte *end{nullptr};
 };
 
 }  // namespace sled

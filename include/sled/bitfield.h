@@ -106,20 +106,46 @@ struct flags_bitfield {
     return *this;
   }
 
-  friend inline std::ostream &operator<<(std::ostream &os, Tag const &rhs) {
-    Ta val = rhs.v;
-    bool first = true;
-    for (auto &field : Tag::fields) {
-      if ((val & (1 << field.b)) == 0) {
-        continue;
+  static inline Tag from_string(std::string const &obj) {
+    return Tag(stoull(obj, nullptr, 0));
+  }
+
+  struct flags_bitfield_fmt {
+    explicit constexpr flags_bitfield_fmt(const Tag &f) : f_(f) {}
+    const Tag &f_;
+
+    friend inline std::ostream &operator<<(std::ostream &os,
+                                           const flags_bitfield_fmt &obj) {
+      Ta val = obj.f_.v;
+      bool first = true;
+      for (auto &field : Tag::fields) {
+        if ((val & (1 << field.b)) == 0) {
+          continue;
+        }
+        if (first) {
+          first = false;
+        } else {
+          os << ",";
+        }
+        os << field.label;
       }
-      if (first) {
-        first = false;
-      } else {
-        os << ",";
-      }
-      os << field.label;
+      return os;
     }
+
+    friend inline std::string fmt_string(const flags_bitfield_fmt &obj) {
+      std::stringstream os;
+      os << obj;
+      return os.str();
+    }
+  };
+
+  flags_bitfield_fmt fmt() const {
+    auto &t = static_cast<const Tag &>(*this);
+    return flags_bitfield_fmt{t};
+  }
+
+  friend inline std::ostream &operator<<(std::ostream &os, Tag const &rhs) {
+    os << rhs.fmt();
     return os;
   }
 
@@ -127,10 +153,6 @@ struct flags_bitfield {
     std::stringstream ss;
     ss << rhs;
     return ss.str();
-  }
-
-  static inline Tag from_string(std::string const &obj) {
-    return Tag(stoull(obj, nullptr, 0));
   }
 };
 
