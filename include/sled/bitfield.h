@@ -20,11 +20,11 @@ struct struct_bitfield {
     Tb b;
   };
 
-  struct_bitfield() { memset(this, 0, sizeof(*this)); }
+  constexpr struct_bitfield() { memset(this, 0, sizeof(*this)); }
 
-  struct_bitfield(Ta const &v) : v(v) {}
+  constexpr struct_bitfield(Ta const &v) : v(v) {}
 
-  struct_bitfield(Tb const &v) : b(b) {}
+  constexpr struct_bitfield(Tb const &v) : b(b) {}
 
   struct field_description {
     constexpr field_description(int l, int h, char const *label)

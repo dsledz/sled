@@ -197,7 +197,7 @@ struct enum_struct {
         return Tag{name.first};
       }
     }
-    throw sled::ConversionError(obj);
+    throw sled::ConversionError("enum", obj);
   }
 
   static inline std::ostream &choices(std::ostream &os) {
