@@ -59,6 +59,23 @@ static inline bool ends_with(const std::string &haystack,
 }
 
 /**
+ * Returns true iff @a s begins with @a e.
+ */
+static inline bool begins_with(const std::string &haystack,
+                               const std::string &needle) {
+  size_t n = haystack.rfind(needle);
+  if (n == std::string::npos) {
+    return false;
+  }
+  size_t s_len = haystack.size();
+  size_t e_len = needle.size();
+  if (s_len < e_len) {
+    return false;
+  }
+  return (n == 0);
+}
+
+/**
  * Return a formated obj as a string.
  */
 template <typename T>
