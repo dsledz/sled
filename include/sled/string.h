@@ -63,7 +63,7 @@ static inline bool ends_with(const std::string &haystack,
  */
 static inline bool begins_with(const std::string &haystack,
                                const std::string &needle) {
-  size_t n = haystack.rfind(needle);
+  size_t n = haystack.find(needle);
   if (n == std::string::npos) {
     return false;
   }

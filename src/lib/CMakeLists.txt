@@ -1,5 +1,6 @@
 add_library(sled-lib
     base64.cpp
+    cmdline.cpp
     log.cpp
     statistics.cpp
     )
@@ -9,6 +10,7 @@ add_unit_test(
     SRC base64_test.cpp
         bitfield_test.cpp
         bytestream_test.cpp
+        cmdline_test.cpp
         crc_test.cpp
         enum_test.cpp
         exception_test.cpp
